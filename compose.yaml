@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  smart-flashcards:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.native
+    image: tdoerr/smart-flashcards:native
+    ports:
+      - "8080:8080"
+    volumes:
+      - db_data:/var/lib/mysql
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      QUARKUS_DATASOURCE_REACTIVE_URL: "mariadb://db:3306/smart-flashcards"
+      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: "update"
+      QUARKUS_HIBERNATE_ORM_LOG_SQL: false
+    networks:
+      - sf-network
+      
+  db:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.mariadb
+    image: mariadb
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: smart-flashcards
+    networks:
+      - sf-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect"]
+      timeout: 4s
+      retries: 10
+      
+      
+networks:
+  sf-network:
+    name: sfnetwork
+
+volumes:
+  db_data:
