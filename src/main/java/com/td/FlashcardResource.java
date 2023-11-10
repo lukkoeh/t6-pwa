@@ -55,7 +55,6 @@ public class FlashcardResource {
   @Path("{sid}")
   public Uni<Response> addStack(@Context SecurityContext securityContext, Flashcard card,
       @PathParam("sid") long sid) {
-    // TODO Checken, ob User eine Karte mit der Vorderseite hat, wenn ja, Fehler.
     return User.findByName(securityContext.getUserPrincipal().getName()).onItem()
         .transformToUni(user -> {
           CriteriaQuery<CardStack> cqueryStack =
@@ -75,6 +74,7 @@ public class FlashcardResource {
                     .onItem().ifNotNull().transform(c -> Response.status(400).build()).onItem()
                     .ifNull().switchTo(sf.withTransaction(tCard -> {
                       card.probability = 0.05f;
+                      card.stack = stack;
                       return tCard.persist(card);
                     }).replaceWith(Response.status(201).build())));
               }));
