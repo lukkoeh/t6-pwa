@@ -16,6 +16,6 @@ public class Flashcard {
     public float probability;
 
     @JsonIgnore
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false)
     public CardStack stack;
 }

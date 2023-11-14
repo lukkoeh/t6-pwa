@@ -22,7 +22,7 @@ public class CardStack {
     @ManyToOne(optional = false)
     public User user;
 
-    @OneToMany(mappedBy = "stack", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "stack", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     public List<Flashcard> flashcards;
     public List<Flashcard> getFlashcards () {
         return flashcards;
@@ -31,4 +31,5 @@ public class CardStack {
     public User getUser(){
         return user;
     }
+
 }
