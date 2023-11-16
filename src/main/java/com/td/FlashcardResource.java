@@ -62,7 +62,7 @@ public class FlashcardResource {
                         return sf.withSession(sCard -> sCard.createQuery(cquery).getSingleResultOrNull().onItem()
                                                             .ifNotNull().transform(c -> Response.status(400).build())
                                                             .onItem().ifNull().switchTo(sf.withTransaction(tCard -> {
-                                    card.probability = 0.05f;
+                                    card.probability = 0.1f;
                                     card.stack       = stack;
                                     return tCard.persist(card);
                                 }).replaceWith(Response.status(201).entity(card).build())));
@@ -113,7 +113,7 @@ public class FlashcardResource {
                     .transformToUni(fc -> sf.withTransaction(sCard -> {
                         fc.front       = card.front;
                         fc.back        = card.back;
-                        fc.probability = 0.5f;
+                        fc.probability = 0.1f;
                         return sCard.persist(fc).replaceWith(Response.ok()::build);
                     })).replaceWith(Response.ok().build()).onItem().ifNull().failWith(new WebApplicationException(400));
         });
