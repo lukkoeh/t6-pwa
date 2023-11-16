@@ -7,28 +7,39 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name="stacks")
+@Table(name = "stacks")
 public class CardStack {
     @Id
     @GeneratedValue
     public long id;
+
     public long getId() {
         return id;
     }
 
     public String name;
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @JsonIgnore
     @ManyToOne(optional = false)
     public User user;
 
-    @OneToMany(mappedBy = "stack", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    public void setFlashcards( List<Flashcard> flashcards ) {
+        this.flashcards = flashcards;
+    }
+
+    @OneToMany(mappedBy = "stack", fetch = FetchType.EAGER, cascade = { CascadeType.ALL })
     public List<Flashcard> flashcards;
-    public List<Flashcard> getFlashcards () {
+
+    public List<Flashcard> getFlashcards() {
         return flashcards;
     }
 
-    public User getUser(){
+
+    public User getUser() {
         return user;
     }
 

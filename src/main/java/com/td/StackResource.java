@@ -29,54 +29,62 @@ public class StackResource {
             cardStack.user = u;
             return sf.withSession(s -> s.createQuery(Filter.findByUserAndName(CardStack.class, sf, u, cardStack.name))
                                         .getSingleResultOrNull().onItem().ifNotNull()
-                                        .transform(st -> Response.status(400).build()).onItem().ifNull()
-                                        .switchTo(() -> sf.withTransaction(ts -> ts.persist(cardStack))
-                                                          .replaceWith(Response.status(201).build())));
+                                        .transform(st -> Response.status(400).build()).onItem().ifNull().switchTo(
+                            () -> sf.withTransaction(ts -> ts.persist(cardStack))
+                                    .replaceWith(Response.status(201).build())));
         });
     }
 
     @GET
     public Uni<List<CardStack>> getStacks( @Context SecurityContext securityContext ) {
-        return User.findByName(securityContext.getUserPrincipal().getName()).onItem()
-                   .transformToUni(user -> sf.withSession(session -> session.createQuery(Filter.findByUser(CardStack.class, sf, user))
-                                                                            .getResultList()));
+        return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(
+                user -> sf.withSession(
+                        session -> session.createQuery(Filter.findByUser(CardStack.class, sf, user)).getResultList()));
     }
 
     @GET
     @Path("{id}")
     public Uni<Response> getStack( @PathParam("id") long id, @Context SecurityContext securityContext ) {
-        return User.findByName(securityContext.getUserPrincipal().getName()).onItem()
-                   .transformToUni(user -> sf.withSession(session -> session.createQuery(Filter.findByUserAndId(CardStack.class, sf, user, id))
-                                                                            .getSingleResultOrNull()).onItem()
-                                             .ifNotNull().transform(stack -> Response.ok(stack).build()).onItem()
-                                             .ifNull().continueWith(Response.status(404).build()));
+        return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(
+                user -> sf.withSession(
+                                  session -> session.createQuery(Filter.findByUserAndId(CardStack.class, sf, user, id))
+                                                    .getSingleResultOrNull()).onItem().ifNotNull()
+                          .transform(stack -> Response.ok(stack).build()).onItem().ifNull()
+                          .continueWith(Response.status(404).build()));
     }
 
     @DELETE
     @Path("/{id}")
     public Uni<Response> deleteStack( @Context SecurityContext securityContext, @PathParam("id") long id ) {
-        return User.findByName(securityContext.getUserPrincipal().getName()).onItem()
-                   .transformToUni(u -> sf.withTransaction(s -> s.createQuery(Filter.findByUserAndId(CardStack.class, sf, u, id))
-                                                                 .getSingleResultOrNull().onItem().ifNotNull()
-                                                                 .transformToUni(cardStack -> s.remove(cardStack)
-                                                                                               .replaceWith(Response.status(204)
-                                                                                                                    .build()))
-                                                                 .onItem().ifNull()
-                                                                 .continueWith(Response.status(400)::build)));
+        return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(
+                u -> sf.withTransaction(
+                        s -> s.createQuery(Filter.findByUserAndId(CardStack.class, sf, u, id)).getSingleResultOrNull()
+                              .onItem().ifNotNull().transformToUni(
+                                        cardStack -> s.remove(cardStack).replaceWith(Response.status(204).build()))
+                              .onItem().ifNull().continueWith(Response.status(400)::build)));
     }
 
     @PUT
-    @Path("{id}")
-    public Uni<Response> updateStack( @Context SecurityContext securityContext, @PathParam("id") long id, CardStack stack ) {
-        return User.findByName(securityContext.getUserPrincipal().getName()).onItem()
-                   .transformToUni(u -> sf.withTransaction(s -> s.createQuery(Filter.findByUserAndId(CardStack.class, sf, u, id))
-                                                                 .getSingleResultOrNull().onItem().ifNotNull()
-                                                                 .transformToUni(cardStack -> {
-                                                                     cardStack.name = stack.name;
-                                                                     return s.persist(cardStack)
-                                                                             .replaceWith(Response.status(200)::build);
-                                                                 }).onItem().ifNull()
-                                                                 .continueWith(Response.status(400)::build)));
+    public Uni<Response> updateStack( @Context SecurityContext securityContext, CardStack stack ) {
+        return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(
+                u -> sf.withTransaction(s -> s.createQuery(Filter.findByUserAndId(CardStack.class, sf, u, stack.id))
+                                              .getSingleResultOrNull().onItem().ifNotNull()
+                                              .transformToUni(cardStack -> {
+                                                  stack.flashcards.forEach(crd -> crd.stack = stack);
+                                                  cardStack.flashcards = stack.flashcards;
+                                                  cardStack.name = stack.name;
+                                                  return s.merge(cardStack).replaceWith(Response.ok()::build);
+                                              }).onItem().ifNull().continueWith(Response.status(400).build())));
+    }
+    @PATCH
+    public Uni<Response> updateStackName( @Context SecurityContext securityContext, CardStack stack ) {
+        return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(
+                u -> sf.withTransaction(s -> s.createQuery(Filter.findByUserAndId(CardStack.class, sf, u, stack.id))
+                                              .getSingleResultOrNull().onItem().ifNotNull()
+                                              .transformToUni(cardStack -> {
+                                                  cardStack.name = stack.name;
+                                                  return s.merge(cardStack).replaceWith(Response.ok()::build);
+                                              }).onItem().ifNull().continueWith(Response.status(400).build())));
     }
 
 }
