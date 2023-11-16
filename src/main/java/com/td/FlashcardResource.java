@@ -89,7 +89,7 @@ public class FlashcardResource {
 
             cquery.where(builder.and(pCard, pUser, pStack));
             return s.createQuery(cquery).getSingleResultOrNull().onItem()
-                    .transformToUni(fc -> sf.withTransaction(sCard -> sCard.remove(fc)))
+                    .transformToUni(s::remove)
                     .replaceWith(Response.ok().build()).onItem().ifNull().failWith(new WebApplicationException(400));
         });
     }
@@ -113,7 +113,7 @@ public class FlashcardResource {
                     .transformToUni(fc -> sf.withTransaction(sCard -> {
                         fc.front       = card.front;
                         fc.back        = card.back;
-                        fc.probability = 0.05f;
+                        fc.probability = 0.5f;
                         return sCard.persist(fc).replaceWith(Response.ok()::build);
                     })).replaceWith(Response.ok().build()).onItem().ifNull().failWith(new WebApplicationException(400));
         });

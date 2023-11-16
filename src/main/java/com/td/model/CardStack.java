@@ -31,7 +31,7 @@ public class CardStack {
         this.flashcards = flashcards;
     }
 
-    @OneToMany(mappedBy = "stack", fetch = FetchType.EAGER, cascade = { CascadeType.ALL })
+    @OneToMany(mappedBy = "stack", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.MERGE })
     public List<Flashcard> flashcards;
 
     public List<Flashcard> getFlashcards() {
