@@ -76,14 +76,22 @@ public class StackResource {
                                                   return s.merge(cardStack).replaceWith(Response.ok()::build);
                                               }).onItem().ifNull().continueWith(Response.status(400).build())));
     }
+
     @PATCH
     public Uni<Response> updateStackName( @Context SecurityContext securityContext, CardStack stack ) {
         return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(
                 u -> sf.withTransaction(s -> s.createQuery(Filter.findByUserAndId(CardStack.class, sf, u, stack.id))
                                               .getSingleResultOrNull().onItem().ifNotNull()
                                               .transformToUni(cardStack -> {
-                                                  cardStack.name = stack.name;
-                                                  return s.merge(cardStack).replaceWith(Response.ok()::build);
+                                                  return s.createQuery(
+                                                                  Filter.findByUserAndName(CardStack.class, sf, u, stack.name))
+                                                          .getSingleResultOrNull().onItem().ifNotNull()
+                                                          .transform(existingStack -> Response.status(400).build())
+                                                          .onItem().ifNull().switchTo(() -> {
+                                                              cardStack.name = stack.name;
+                                                              return s.merge(cardStack).replaceWith(
+                                                                  Response.ok().build());
+                                                          });
                                               }).onItem().ifNull().continueWith(Response.status(400).build())));
     }
 

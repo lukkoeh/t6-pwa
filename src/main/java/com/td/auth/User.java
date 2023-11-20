@@ -26,7 +26,7 @@ public class User extends PanacheEntity {
     public  String          password;
     @Roles
     public  String          role;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE})
     private List<CardStack> cardStacks;
 
     public List<CardStack> getStacks() {
