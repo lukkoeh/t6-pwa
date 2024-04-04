@@ -1,0 +1,19 @@
+{
+  "cwd": "C:\\Users\\lukko\\GitHubProjects",
+  "type": [
+    "pwa",
+    "web"
+  ],
+  "name": "Smart-Flashcards",
+  "framework": "vue",
+  "template": "single-view",
+  "cssPreProcessor": false,
+  "bundler": "vite",
+  "theming": {
+    "customColor": false,
+    "color": "#007aff",
+    "darkMode": false,
+    "iconFonts": true
+  },
+  "customBuild": false
+}
