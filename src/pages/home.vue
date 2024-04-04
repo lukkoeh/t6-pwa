@@ -11,7 +11,7 @@
     <!-- Page content-->
     <f7-block>
       <p>Welcome to smart-flashcards. Please login to see your personal stacks of flashcards.</p>
-      <f7-button fill>Create new stack</f7-button>
+      <f7-button fill class="popup-open" data-popup=".create-popup">Create new stack</f7-button>
     </f7-block>
     <f7-block-title>Your Stacks</f7-block-title>
 
@@ -59,4 +59,7 @@
   </f7-page>
 </template>
 <script setup lang="ts">
+const refreshData = () => {
+  alert("reload")
+}
 </script>

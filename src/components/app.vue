@@ -63,16 +63,30 @@
 
 
     <!-- Popup -->
-    <f7-popup id="my-popup">
+    <f7-popup id="my-popup" class="create-popup">
       <f7-view>
         <f7-page>
-          <f7-navbar title="Popup">
+          <f7-navbar title="Create new stack">
             <f7-nav-right>
               <f7-link popup-close>Close</f7-link>
             </f7-nav-right>
           </f7-navbar>
           <f7-block>
-            <p>Popup content goes here.</p>
+            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
+              <ul>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Name</div>
+                      <div class="item-input-wrap">
+                        <input type="text" name="name" placeholder="Stack name" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+            <f7-button @click="createStack" fill>Create</f7-button>
           </f7-block>
         </f7-page>
       </f7-view>
@@ -116,13 +130,18 @@
   import store from '../js/store';
 
   export default {
+    methods: {
+      createStack() {
+        // TODO: Implement create Routine
+        f7.popup.close();
+      }
+    },
     setup() {
 
       // Framework7 Parameters
       const f7params = {
         name: 'Smart-Flashcards', // App name
-        theme: 'auto', // Automatic theme detection
-
+        theme: 'auto', // Automatic theme detection,
 
 
 
@@ -151,7 +170,6 @@
           f7.loginScreen.open("#my-login-screen")
         });
       });
-
       return {
         f7params,
         username,
