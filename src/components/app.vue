@@ -2,7 +2,7 @@
   <f7-app v-bind="f7params">
 
   <!-- Left panel with cover effect-->
-  <f7-panel left cover dark>
+  <f7-panel left cover auto>
     <f7-view>
       <f7-page>
         <f7-navbar title="Left Panel"></f7-navbar>
@@ -13,7 +13,7 @@
 
 
   <!-- Right panel with reveal effect-->
-  <f7-panel right reveal dark>
+  <f7-panel right reveal auto>
     <f7-view>
       <f7-page>
         <f7-navbar title="Right Panel"></f7-navbar>
@@ -112,9 +112,8 @@
       }
       onMounted(() => {
         f7ready(() => {
-
-
           // Call F7 APIs here
+          f7.loginScreen.open("#my-login-screen")
         });
       });
 
