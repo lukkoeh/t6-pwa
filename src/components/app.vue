@@ -5,19 +5,54 @@
   <f7-panel left cover auto>
     <f7-view>
       <f7-page>
-        <f7-navbar title="Left Panel"></f7-navbar>
-        <f7-block>Left panel content goes here</f7-block>
-      </f7-page>
-    </f7-view>
-  </f7-panel>
+        <f7-navbar title="Menu"></f7-navbar>
+        <f7-block>
+          <h2 class="text-align-center">Welcome!</h2>
+        </f7-block>
+        <div class="padding list list-strong-ios list-outline-ios media-list menu-list display-flex flex-direction-column justify-content-space-between align-items-center">
+          <ul>
+            <li class="display-flex justify-content-center align-items-center">
+                <div class="item-media">
+                  <i class="icon material-icons if-md">home</i>
+                  <i class="icon f7-icons if-not-md">house</i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title-wrap">
+                    <div class="item-title">Home</div>
+                  </div>
+                  <div class="item-subtitle">Train your mind</div>
+                </div>
+            </li>
+            <li class="display-flex justify-content-center align-items-center">
+                <div class="item-media">
+                  <i class="icon material-icons if-md">person</i>
+                  <i class="icon f7-icons if-not-md">person_fill</i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title-wrap">
+                    <div class="item-title">Profile</div>
+                  </div>
+                  <div class="item-subtitle">Edit your data</div>
+                </div>
 
-
-  <!-- Right panel with reveal effect-->
-  <f7-panel right reveal auto>
-    <f7-view>
-      <f7-page>
-        <f7-navbar title="Right Panel"></f7-navbar>
-        <f7-block>Right panel content goes here</f7-block>
+            </li>
+            <li class="display-flex justify-content-center align-items-center">
+                <div class="item-media">
+                  <i class="icon material-icons if-md">settings</i>
+                  <i class="icon f7-icons if-not-md">gear_alt_fill</i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title-wrap">
+                    <div class="item-title">Settings</div>
+                  </div>
+                  <div class="item-subtitle">Change the settings</div>
+                </div>
+            </li>
+          </ul>
+        </div>
+        <f7-button fill style="position: absolute; bottom: 10px; width: calc(100% - 20px); left: 10px;">
+          <p>Log out</p>
+        </f7-button>
       </f7-page>
     </f7-view>
   </f7-panel>
