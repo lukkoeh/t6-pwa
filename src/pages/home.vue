@@ -15,38 +15,86 @@
     </f7-block>
     <f7-block-title>Your Stacks</f7-block-title>
 
-    <div class="card" v-for="stack in stacks" :key="stack.id">
+    <div class="card" v-for="stack in stacks" :key="stack.id" @click="learnStack(stack.id)">
       <div class="card-header">{{ stack.name }}</div>
       <div class="card-content card-content-padding">
-        <p>{{stack.description}}</p>
+        <p>{{ stack.description }}</p>
       </div>
       <div class="card-footer">
-        <p style="border: 1px solid #333; color: #000; background-color: #eee;" class="button">{{stack.cards}} Cards</p>
+        <p style="border: 1px solid #333; color: #000; background-color: #eee;" class="button">{{ stack.cards }}
+          Cards</p>
         <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
-          <f7-button fill class="popup-open" data-popup=".edit-popup">Edit</f7-button>
-          <f7-button fill class="color-red" @click="confirmDeletion">Delete</f7-button>
+          <f7-button fill class="button" @click.stop="openEditPopup">Edit</f7-button>
+          <f7-button fill class="color-red" @click.stop="confirmDeletion">Delete</f7-button>
         </div>
       </div>
     </div>
   </f7-page>
+  <f7-popup id="learn-popup" class="learn-popup-cl">
+    <f7-view>
+      <f7-page>
+        <f7-navbar title="Learn Stack">
+          <f7-nav-right>
+            <f7-link popup-close>Close</f7-link>
+          </f7-nav-right>
+        </f7-navbar>
+        <f7-block>
+          <p>Stack No: {{current_stack_id}}</p>
+        </f7-block>
+      </f7-page>
+    </f7-view>
+  </f7-popup>
 </template>
 <script setup lang="ts">
 import {f7} from "framework7-vue";
-import {ref} from "vue";
+import {nextTick, onMounted, ref} from "vue";
 
+const current_stack_id = ref(0);
 const stacks = ref([
-  {id: 1, name: "Some random Stack of cards", description: "A random description for your stack. Lorem Lorem Ipsumus Maximus34", cards: 64},
-  {id: 2, name: "Some random Stack of cards", description: "A random description for your stack. Lorem Lorem Ipsumus Maximus56", cards: 64},
-  {id: 3, name: "Some random Stack of cards", description: "A random description for your stack. Lorem Lorem Ipsumus Maximus78", cards: 64},
+  {
+    id: 1,
+    name: "Some random Stack of cards",
+    description: "A random description for your stack. Lorem Lorem Ipsumus Maximus34",
+    cards: 64
+  },
+  {
+    id: 2,
+    name: "Another stack of cards",
+    description: "A random description for your stack. Lorem Lorem Ipsumus Maximus56",
+    cards: 64
+  },
+  {
+    id: 3,
+    name: "The third is the best",
+    description: "A random description for your stack. Lorem Lorem Ipsumus Maximus78",
+    cards: 64
+  },
 ])
 
-const refreshData = () => {
-  alert("reload")
+onMounted(() => {
+  loadStacks();
+});
+
+function loadStacks() {
 }
 
 function confirmDeletion() {
-  f7.dialog.confirm("Do you want to delete this resource?", ()=> {
+  f7.dialog.confirm("Do you want to delete this resource?", () => {
     // TODO: Implement deletion logic here
   })
+}
+
+function openEditPopup() {
+  f7.popup.create({
+    el: "#edit-popup",
+  }).open();
+}
+
+function learnStack(id: number) {
+  f7.dialog.alert(`You clicked on stack with id ${id}`);
+  current_stack_id.value = id;
+  f7.popup.create({
+    el: "#learn-popup",
+  }).open();
 }
 </script>
