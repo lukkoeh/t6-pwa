@@ -154,14 +154,12 @@
   </f7-app>
 </template>
 <script>
-import {ref, onMounted, toValue} from 'vue';
+  import { ref, onMounted } from 'vue';
   import { f7, f7ready } from 'framework7-vue';
 
 
   import routes from '../js/routes.js';
   import store from '../js/store';
-  import * as username from "dom7";
-  import * as password from "dom7";
 
   export default {
     methods: {
@@ -175,11 +173,18 @@ import {ref, onMounted, toValue} from 'vue';
         alert("edit")
         f7.popup.close();
       },
-      performLogin() {
-        // TODO: Implement Login Routine
-        f7.dialog.alert('Username: ' + this.username + '<br>Password: ' + this.password, () => {
-          f7.loginScreen.close();
+      async performLogin() {
+        const searchParams = [["login_username", this.username],["login_password", this.password]];
+
+        const urlFormData = new URLSearchParams(searchParams);
+        console.log(urlFormData);
+
+        const res = await fetch(this.apiHost + 'auth', {
+          method: 'POST',
+          body: urlFormData
         });
+
+        f7.loginScreen.close();
       }
     },
     setup() {
@@ -204,6 +209,7 @@ import {ref, onMounted, toValue} from 'vue';
       // Login screen data
       const username = ref('');
       const password = ref('');
+      const apiHost = "http://localhost:8080/";
 
       onMounted(() => {
         f7ready(() => {
@@ -215,6 +221,7 @@ import {ref, onMounted, toValue} from 'vue';
         f7params,
         username,
         password,
+        apiHost
       }
     }
   }
