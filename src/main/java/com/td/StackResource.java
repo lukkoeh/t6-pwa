@@ -78,21 +78,16 @@ public class StackResource {
     }
 
     @PATCH
-    public Uni<Response> updateStackName( @Context SecurityContext securityContext, CardStack stack ) {
+    public Uni<Response> updateStackNameAndDesc( @Context SecurityContext securityContext, CardStack stack ) {
         return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(
                 u -> sf.withTransaction(s -> s.createQuery(Filter.findByUserAndId(CardStack.class, sf, u, stack.id))
                                               .getSingleResultOrNull().onItem().ifNotNull()
                                               .transformToUni(cardStack -> {
-                                                  return s.createQuery(
-                                                                  Filter.findByUserAndName(CardStack.class, sf, u, stack.name))
-                                                          .getSingleResultOrNull().onItem().ifNotNull()
-                                                          .transform(existingStack -> Response.status(400).build())
-                                                          .onItem().ifNull().switchTo(() -> {
-                                                              cardStack.name = stack.name;
-                                                              return s.merge(cardStack).replaceWith(
-                                                                  Response.ok().build());
-                                                          });
-                                              }).onItem().ifNull().continueWith(Response.status(400).build())));
+                                                  cardStack.name = stack.name;
+                                                  cardStack.description = stack.description;
+                                                  return s.merge(cardStack).replaceWith(
+                                                          Response.ok().build());
+                                              })).onItem().ifNull().continueWith(Response.status(400).build()));
     }
 
 }

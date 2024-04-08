@@ -267,14 +267,14 @@ export default {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          id: stacks.value[current_stack_index].id,
+          id: stacks.value[current_stack_index.value].id,
           name: editStackName.value,
           description: editStackDescription.value
         })
       })
       if (response.ok) {
-        //stacks.value[current_stack_index].name = editStackName.value
-        //stacks.value[current_stack_index].description = editStackDescription.value
+        stacks.value[current_stack_index.value].name = editStackName.value
+        stacks.value[current_stack_index.value].description = editStackDescription.value
       }
       f7.popup.close();
     },
