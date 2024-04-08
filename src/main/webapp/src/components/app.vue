@@ -39,8 +39,8 @@
             </li>
           </ul>
         </div>
-        <f7-button fill style="position: absolute; bottom: 10px; width: calc(100% - 20px); left: 10px;">
-          <p>Log out</p>
+        <f7-button fill style="position: absolute; bottom: 20px; width: calc(100% - 40px); left: 20px;" @click="logout">
+          Log out
         </f7-button>
       </f7-page>
     </f7-view>
@@ -312,7 +312,7 @@
       },
       openProfilePopup() {
         f7.popup.open('#profile-popup');
-        // TODO: Prefill existing name from API
+        // TODO: Prefill existing name from API in profile edit
       },
       editProfile() {
         // TODO: Implement edit Profile Routine with data provided in this.name, this.oldPassword, this.newPassword, this.newPasswordRepeat
@@ -332,6 +332,9 @@
       },
       openCardCreatePopUp() {
         f7.popup.open("#create-card-popup");
+      },
+      logout() {
+        // TODO: Implement logout logic to remove cookie
       },
       async performLogin() {
         const searchParams = [["login_username", this.username],["login_password", this.password]];
