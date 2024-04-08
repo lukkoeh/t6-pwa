@@ -23,8 +23,8 @@
       <div class="card-footer">
         <p style="border: 1px solid #333; color: #000; background-color: #eee;" class="button">64 Cards</p>
         <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
-          <f7-button fill>Edit</f7-button>
-          <f7-button fill class="color-red">Delete</f7-button>
+          <f7-button fill class="popup-open" data-popup=".edit-popup">Edit</f7-button>
+          <f7-button fill class="color-red" @click="confirmDeletion">Delete</f7-button>
         </div>
       </div>
     </div>
@@ -37,7 +37,7 @@
       <div class="card-footer">
         <p style="border: 1px solid #333; color: #000; background-color: #efefef;" class="button">64 Cards</p>
         <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
-          <f7-button fill>Edit</f7-button>
+          <f7-button fill class="popup-open" data-popup=".edit-popup">Edit</f7-button>
           <f7-button fill class="color-red">Delete</f7-button>
         </div>
       </div>
@@ -51,7 +51,7 @@
       <div class="card-footer">
         <p style="border: 1px solid #333; color: #000; background-color: #eee;" class="button">64 Cards</p>
         <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
-          <f7-button fill>Edit</f7-button>
+          <f7-button fill class="popup-open" data-popup=".edit-popup">Edit</f7-button>
           <f7-button fill class="color-red">Delete</f7-button>
         </div>
       </div>
@@ -59,7 +59,15 @@
   </f7-page>
 </template>
 <script setup lang="ts">
+import {f7} from "framework7-vue";
+
 const refreshData = () => {
   alert("reload")
+}
+
+function confirmDeletion() {
+  f7.dialog.confirm("Do you want to delete this resource?", ()=> {
+    alert("implement deletion routine here")
+  })
 }
 </script>

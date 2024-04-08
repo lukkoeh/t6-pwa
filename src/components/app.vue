@@ -1,5 +1,7 @@
 <template>
-  <f7-app v-bind="f7params">
+  <f7-app v-bind="f7params" @stack-confirmed-deletion="()=>{
+    alert('your mum')
+  }">
 
   <!-- Left panel with cover effect-->
   <f7-panel left cover auto>
@@ -72,7 +74,7 @@
             </f7-nav-right>
           </f7-navbar>
           <f7-block>
-            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
+            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form1">
               <ul>
                 <li>
                   <div class="item-content item-input">
@@ -87,6 +89,36 @@
               </ul>
             </form>
             <f7-button @click="createStack" fill>Create</f7-button>
+          </f7-block>
+        </f7-page>
+      </f7-view>
+    </f7-popup>
+
+    <!-- Popup -->
+    <f7-popup id="edit-stack-popup" class="edit-popup">
+      <f7-view>
+        <f7-page>
+          <f7-navbar title="Edit stack">
+            <f7-nav-right>
+              <f7-link popup-close>Close</f7-link>
+            </f7-nav-right>
+          </f7-navbar>
+          <f7-block>
+            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
+              <ul>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Name</div>
+                      <div class="item-input-wrap">
+                        <input type="text" name="name" placeholder="Stack name" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+            <f7-button @click="editStack" fill>Save edits</f7-button>
           </f7-block>
         </f7-page>
       </f7-view>
@@ -111,7 +143,7 @@
             ></f7-list-input>
           </f7-list>
           <f7-list>
-            <f7-list-button title="Sign In" @click="alertLoginData"></f7-list-button>
+            <f7-list-button title="Sign In" @click="performLogin"></f7-list-button>
             <f7-block-footer>
               Some text about login information.<br>Click "Sign In" to close Login Screen
             </f7-block-footer>
@@ -133,7 +165,17 @@
     methods: {
       createStack() {
         // TODO: Implement create Routine
+        alert("create")
         f7.popup.close();
+      },
+      editStack() {
+        // TODO: Implement edit Routine
+        alert("edit")
+        f7.popup.close();
+      },
+      performLogin() {
+        // TODO: Implement Login Routine
+        f7.loginScreen.close();
       }
     },
     setup() {
