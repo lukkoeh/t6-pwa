@@ -25,7 +25,7 @@
                   <div class="item-subtitle">Train your mind</div>
                 </div>
             </li>
-            <li class="display-flex justify-content-center align-items-center">
+            <li class="display-flex justify-content-center align-items-center" @click="openProfilePopup()">
                 <div class="item-media">
                   <i class="icon material-icons if-md">person</i>
                   <i class="icon f7-icons if-not-md">person_fill</i>
@@ -35,19 +35,6 @@
                     <div class="item-title">Profile</div>
                   </div>
                   <div class="item-subtitle">Edit your data</div>
-                </div>
-
-            </li>
-            <li class="display-flex justify-content-center align-items-center">
-                <div class="item-media">
-                  <i class="icon material-icons if-md">settings</i>
-                  <i class="icon f7-icons if-not-md">gear_alt_fill</i>
-                </div>
-                <div class="item-inner">
-                  <div class="item-title-wrap">
-                    <div class="item-title">Settings</div>
-                  </div>
-                  <div class="item-subtitle">Change the settings</div>
                 </div>
             </li>
           </ul>
@@ -124,6 +111,66 @@
       </f7-view>
     </f7-popup>
 
+    <!-- Popup -->
+    <f7-popup id="profile-popup" class="profile-popup">
+      <f7-view>
+        <f7-page>
+          <f7-navbar title="Edit profile">
+            <f7-nav-right>
+              <f7-link popup-close>Close</f7-link>
+            </f7-nav-right>
+          </f7-navbar>
+          <f7-block>
+            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
+              <ul>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Name</div>
+                      <div class="item-input-wrap">
+                        <input v-model="name" type="text" name="name" placeholder="Max Patternman" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Old Password</div>
+                      <div class="item-input-wrap">
+                        <input v-model="oldPassword" type="password" name="name" placeholder="1234" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">New Password</div>
+                      <div class="item-input-wrap">
+                        <input v-model="newPassword" type="password" name="name" placeholder="Please not 1234" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">New Password repeat</div>
+                      <div class="item-input-wrap">
+                        <input v-model="newPasswordRepeat" type="password" name="name" placeholder="I mean it" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+            <f7-button @click="editProfile" fill>Save edits</f7-button>
+          </f7-block>
+        </f7-page>
+      </f7-view>
+    </f7-popup>
+
     <f7-login-screen id="my-login-screen">
       <f7-view>
         <f7-page login-screen>
@@ -180,6 +227,13 @@ import {ref, onMounted, toValue} from 'vue';
         f7.dialog.alert('Username: ' + this.username + '<br>Password: ' + this.password, () => {
           f7.loginScreen.close();
         });
+      },
+      openProfilePopup() {
+        f7.popup.open('#profile-popup');
+        // TODO: Prefill existing name from API
+      },
+      editProfile() {
+        // TODO: Implement edit Profile Routine with data provided in this.name, this.oldPassword, this.newPassword, this.newPasswordRepeat
       }
     },
     setup() {
@@ -205,6 +259,12 @@ import {ref, onMounted, toValue} from 'vue';
       const username = ref('');
       const password = ref('');
 
+      // Edit Profile popup data
+      const name = ref('');
+      const oldPassword = ref('');
+      const newPassword = ref('');
+      const newPasswordRepeat = ref('');
+
       onMounted(() => {
         f7ready(() => {
           // Call F7 APIs here
@@ -215,6 +275,10 @@ import {ref, onMounted, toValue} from 'vue';
         f7params,
         username,
         password,
+        name,
+        oldPassword,
+        newPassword,
+        newPasswordRepeat
       }
     }
   }
