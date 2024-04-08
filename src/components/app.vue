@@ -95,7 +95,7 @@
     </f7-popup>
 
     <!-- Popup -->
-    <f7-popup id="edit-stack-popup" class="edit-popup">
+    <f7-popup id="edit-popup" class="edit-popup">
       <f7-view>
         <f7-page>
           <f7-navbar title="Edit stack">
