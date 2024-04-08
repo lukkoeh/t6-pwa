@@ -3,17 +3,18 @@
     alert('your mum')
   }">
 
-  <!-- Left panel with cover effect-->
-  <f7-panel left cover auto>
-    <f7-view>
-      <f7-page>
-        <f7-navbar title="Menu"></f7-navbar>
-        <f7-block>
-          <h2 class="text-align-center">Welcome!</h2>
-        </f7-block>
-        <div class="padding list list-strong-ios list-outline-ios media-list menu-list display-flex flex-direction-column justify-content-space-between align-items-center">
-          <ul>
-            <li class="display-flex justify-content-center align-items-center">
+    <!-- Left panel with cover effect-->
+    <f7-panel left cover auto>
+      <f7-view>
+        <f7-page>
+          <f7-navbar title="Menu"></f7-navbar>
+          <f7-block>
+            <h2 class="text-align-center">Welcome!</h2>
+          </f7-block>
+          <div
+              class="padding list list-strong-ios list-outline-ios media-list menu-list display-flex flex-direction-column justify-content-space-between align-items-center">
+            <ul>
+              <li class="display-flex justify-content-center align-items-center">
                 <div class="item-media">
                   <i class="icon material-icons if-md">home</i>
                   <i class="icon f7-icons if-not-md">house</i>
@@ -24,8 +25,8 @@
                   </div>
                   <div class="item-subtitle">Train your mind</div>
                 </div>
-            </li>
-            <li class="display-flex justify-content-center align-items-center" @click="openProfilePopup()">
+              </li>
+              <li class="display-flex justify-content-center align-items-center" @click="openProfilePopup()">
                 <div class="item-media">
                   <i class="icon material-icons if-md">person</i>
                   <i class="icon f7-icons if-not-md">person_fill</i>
@@ -36,19 +37,19 @@
                   </div>
                   <div class="item-subtitle">Edit your data</div>
                 </div>
-            </li>
-          </ul>
-        </div>
-        <f7-button fill style="position: absolute; bottom: 10px; width: calc(100% - 20px); left: 10px;">
-          <p>Log out</p>
-        </f7-button>
-      </f7-page>
-    </f7-view>
-  </f7-panel>
+              </li>
+            </ul>
+          </div>
+          <f7-button fill style="position: absolute; bottom: 10px; width: calc(100% - 20px); left: 10px;">
+            <p>Log out</p>
+          </f7-button>
+        </f7-page>
+      </f7-view>
+    </f7-panel>
 
 
-  <!-- Your main view, should have "view-main" class -->
-  <f7-view main class="safe-areas" url="/"></f7-view>
+    <!-- Your main view, should have "view-main" class -->
+    <f7-view main class="safe-areas" url="/"></f7-view>
 
 
     <!-- Popup -->
@@ -68,7 +69,7 @@
                     <div class="item-inner">
                       <div class="item-title item-label">Name</div>
                       <div class="item-input-wrap">
-                        <input type="text" name="name" placeholder="Stack name" />
+                        <input v-model="createStackName" type="text" name="name" placeholder="Stack name"/>
                       </div>
                     </div>
                   </div>
@@ -98,7 +99,7 @@
                     <div class="item-inner">
                       <div class="item-title item-label">Name</div>
                       <div class="item-input-wrap">
-                        <input type="text" name="name" placeholder="Stack name" />
+                        <input type="text" name="name" placeholder="Stack name"/>
                       </div>
                     </div>
                   </div>
@@ -128,7 +129,7 @@
                     <div class="item-inner">
                       <div class="item-title item-label">Name</div>
                       <div class="item-input-wrap">
-                        <input v-model="name" type="text" name="name" placeholder="Max Patternman" />
+                        <input v-model="name" type="text" name="name" placeholder="Max Patternman"/>
                       </div>
                     </div>
                   </div>
@@ -138,7 +139,7 @@
                     <div class="item-inner">
                       <div class="item-title item-label">Old Password</div>
                       <div class="item-input-wrap">
-                        <input v-model="oldPassword" type="password" name="name" placeholder="1234" />
+                        <input v-model="oldPassword" type="password" name="name" placeholder="1234"/>
                       </div>
                     </div>
                   </div>
@@ -148,7 +149,7 @@
                     <div class="item-inner">
                       <div class="item-title item-label">New Password</div>
                       <div class="item-input-wrap">
-                        <input v-model="newPassword" type="password" name="name" placeholder="Please not 1234" />
+                        <input v-model="newPassword" type="password" name="name" placeholder="Please not 1234"/>
                       </div>
                     </div>
                   </div>
@@ -158,7 +159,7 @@
                     <div class="item-inner">
                       <div class="item-title item-label">New Password repeat</div>
                       <div class="item-input-wrap">
-                        <input v-model="newPasswordRepeat" type="password" name="name" placeholder="I mean it" />
+                        <input v-model="newPasswordRepeat" type="password" name="name" placeholder="I mean it"/>
                       </div>
                     </div>
                   </div>
@@ -177,16 +178,16 @@
           <f7-login-screen-title>Login</f7-login-screen-title>
           <f7-list form>
             <f7-list-input
-              type="text"
-              name="username"
-              placeholder="Your username"
-              v-model:value="username"
+                type="text"
+                name="username"
+                placeholder="Your username"
+                v-model:value="username"
             ></f7-list-input>
             <f7-list-input
-              type="password"
-              name="password"
-              placeholder="Your password"
-              v-model:value="password"
+                type="password"
+                name="password"
+                placeholder="Your password"
+                v-model:value="password"
             ></f7-list-input>
           </f7-list>
           <f7-list>
@@ -201,91 +202,123 @@
   </f7-app>
 </template>
 <script>
-  import { ref, onMounted, provide } from 'vue';
-  import { f7, f7ready } from 'framework7-vue';
+import {ref, onMounted, provide} from 'vue';
+import {f7} from 'framework7-vue';
+import {fetchStacks} from "@/js/api-client";
+import {stacks} from  "../js/state.js"
 
 
-  import routes from '../js/routes.js';
-  import store from '../js/store';
+import routes from '../js/routes.js';
+import store from '../js/store';
 
-  export default {
-    methods: {
-      createStack() {
-        // TODO: Implement create Routine
-        alert("create")
-        f7.popup.close();
-      },
-      editStack() {
-        // TODO: Implement edit Routine
-        alert("edit")
-        f7.popup.close();
-      },
-      openProfilePopup() {
-        f7.popup.open('#profile-popup');
-        // TODO: Prefill existing name from API
-      },
-      editProfile() {
-        // TODO: Implement edit Profile Routine with data provided in this.name, this.oldPassword, this.newPassword, this.newPasswordRepeat
-      },
-      async performLogin() {
-        const searchParams = [["login_username", this.username],["login_password", this.password]];
+export default {
+  methods: {
+    async createStack() {
+      const res = await fetch('api/stack', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: this.createStackName,
+          description: "Default Description [TODO]"
+        })
+      }).then(async (r) => {
+        if (r.ok) {
+          const response = await fetchStacks()
+          if (response.status === 401) {
+            f7.loginScreen.open("my-login-screen")
+          } else {
+            response.json().then(data => {
+              if (data.length > 0) {
+                stacks.value = data;
+                this.createStackName = ""
+              }
+            })
+          }
+        } else {
+          //f7.loginScreen.open("my-login-screen")
 
-        const urlFormData = new URLSearchParams(searchParams);
-        console.log(urlFormData);
+          alert("sth went wrong")
+        }
+      })
 
-        const res = await fetch('/auth', {
-          method: 'POST',
-          body: urlFormData
-        });
+      f7.popup.close();
+    },
+    editStack() {
+      // TODO: Implement edit Routine
+      alert("edit")
+      f7.popup.close();
+    },
+    openProfilePopup() {
+      f7.popup.open('#profile-popup');
+      // TODO: Prefill existing name from API
+    },
+    editProfile() {
+      // TODO: Implement edit Profile Routine with data provided in this.name, this.oldPassword, this.newPassword, this.newPasswordRepeat
+    },
+    async performLogin() {
+      const searchParams = [["login_username", this.username], ["login_password", this.password]];
+//
+      const urlFormData = new URLSearchParams(searchParams);
+      console.log(urlFormData);
+      const router = f7.views.main.router;
 
+      const res = await fetch('/auth', {
+        method: 'POST',
+        body: urlFormData
+      });
+
+      if (!res.ok) {
+        f7.loginScreen.open("my-login-screen");
+      } else {
         f7.loginScreen.close();
       }
-    },
-    setup() {
 
-      // Framework7 Parameters
-      const f7params = {
-        name: 'Smart-Flashcards', // App name
-        theme: 'auto', // Automatic theme detection,
+    }
+  },
+  setup() {
+
+    // Framework7 Parameters
+    const f7params = {
+      name: 'Smart-Flashcards', // App name
+      theme: 'auto', // Automatic theme detection,
 
 
+      // App store
+      store: store,
+      // App routes
+      routes: routes,
 
-        // App store
-        store: store,
-        // App routes
-        routes: routes,
+      // Register service worker (only on production build)
+      serviceWorker: process.env.NODE_ENV === 'production' ? {
+        path: '/service-worker.js',
+      } : {},
+    };
+    // Login screen data
+    const username = ref('');
+    const password = ref('');
 
-        // Register service worker (only on production build)
-        serviceWorker: process.env.NODE_ENV ==='production' ? {
-          path: '/service-worker.js',
-        } : {},
-      };
-      // Login screen data
-      const username = ref('');
-      const password = ref('');
+    const createStackName = ref('')
 
-      // Edit Profile popup data
-      const name = ref('');
-      const oldPassword = ref('');
-      const newPassword = ref('');
-      const newPasswordRepeat = ref('');
+    // Edit Profile popup data
+    const name = ref('');
+    const oldPassword = ref('');
+    const newPassword = ref('');
+    const newPasswordRepeat = ref('');
 
-      onMounted(() => {
-        f7ready(() => {
-          // Call F7 APIs here
-          f7.loginScreen.open("#my-login-screen")
-        });
-      });
-      return {
-        f7params,
-        username,
-        password,
-        apiHost,
-        name,
-        oldPassword,
-        newPassword,
-        newPasswordRepeat
-      }
+    onMounted(() => {
+    });
+    return {
+      f7params,
+      username,
+      password,
+      name,
+      oldPassword,
+      newPassword,
+      newPasswordRepeat,
+      createStackName
     }
   }
+}
 </script>
