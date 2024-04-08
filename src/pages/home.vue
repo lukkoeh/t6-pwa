@@ -39,7 +39,17 @@
           </f7-nav-right>
         </f7-navbar>
         <f7-block>
-          <p>Stack No: {{current_stack_id}}</p>
+          <div class="card" @click="()=> {current_card_state = !current_card_state}">
+            <div class="card-header">Card {{current_card_id}}</div>
+            <div class="card-content card-content-padding">
+              <p v-if="current_card_state">{{current_card_question}}</p>
+              <p v-else>{{current_card_answer}}</p>
+            </div>
+          </div>
+          <div class="padding display-flex justify-content-space-between">
+            <f7-button fill @click="incrementCard(false)">Did not know</f7-button>
+            <f7-button fill @click="incrementCard(true)">Did know</f7-button>
+          </div>
         </f7-block>
       </f7-page>
     </f7-view>
@@ -47,9 +57,17 @@
 </template>
 <script setup lang="ts">
 import {f7} from "framework7-vue";
-import {nextTick, onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 
 const current_stack_id = ref(0);
+const current_card_id = ref(1);
+const current_card_question = computed(()=> {
+  return cards.value.find(card => card.id === current_card_id.value)?.question;
+});
+const current_card_answer = computed(()=> {
+  return cards.value.find(card => card.id === current_card_id.value)?.answer;
+});
+const current_card_state = ref(true);
 const stacks = ref([
   {
     id: 1,
@@ -68,6 +86,27 @@ const stacks = ref([
     name: "The third is the best",
     description: "A random description for your stack. Lorem Lorem Ipsumus Maximus78",
     cards: 64
+  },
+])
+
+const cards = ref([
+  {
+    id: 1,
+    question: "What is the capital of France?",
+    answer: "Paris",
+    visible: true
+  },
+  {
+    id: 2,
+    question: "What is the capital of Germany?",
+    answer: "Berlin",
+    visible: false
+  },
+  {
+    id: 3,
+    question: "What is the capital of Italy?",
+    answer: "Rome",
+    visible: false
   },
 ])
 
@@ -96,5 +135,23 @@ function learnStack(id: number) {
   f7.popup.create({
     el: "#learn-popup",
   }).open();
+  loadCards(id);
+}
+
+function loadCards(stackid: number) {
+
+}
+
+function incrementCard(known: boolean) {
+  if (known) {
+    f7.dialog.alert("Correct!");
+  } else {
+    f7.dialog.alert("Incorrect!");
+  }
+  current_card_id.value++;
+  if (current_card_id.value > cards.value.length) {
+    f7.dialog.alert("You have finished the stack!");
+    f7.popup.close();
+  }
 }
 </script>
