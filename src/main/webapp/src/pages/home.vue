@@ -40,10 +40,10 @@
         </f7-navbar>
         <f7-block>
           <div class="card" @click="()=> {current_card_state = !current_card_state}">
-            <div class="card-header">Card {{current_card_id}}</div>
+            <div class="card-header">Card {{ current_card_id }}</div>
             <div class="card-content card-content-padding">
-              <p v-if="current_card_state">{{current_card_question}}</p>
-              <p v-else>{{current_card_answer}}</p>
+              <p v-if="current_card_state">{{ current_card_question }}</p>
+              <p v-else>{{ current_card_answer }}</p>
             </div>
           </div>
           <div class="padding display-flex justify-content-space-between">
