@@ -131,6 +131,7 @@ function openEditPopup() {
 
 function learnStack(id: number) {
   f7.dialog.alert(`You clicked on stack with id ${id}`);
+  current_card_id.value = 1;
   current_stack_id.value = id;
   f7.popup.create({
     el: "#learn-popup",
