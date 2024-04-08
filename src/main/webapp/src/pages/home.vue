@@ -15,7 +15,7 @@
     </f7-block>
     <f7-block-title>Your Stacks</f7-block-title>
 
-    <div class="card" v-for="stack in stacks" :key="stack.id" @click="learnStack(stack.id)">
+    <div class="card" v-for="(stack, index) in stacks" :key="stack.id" @click="learnStack(stack.id)">
       <div class="card-header">{{ stack.name }}</div>
       <div class="card-content card-content-padding">
         <p>{{ stack.description }}</p>
@@ -57,22 +57,21 @@
 </template>
 <script setup lang="ts">
 import {f7} from "framework7-vue";
-import {computed, onMounted, inject, ref} from "vue";
+import {computed, onMounted, inject, ref, nextTick} from "vue";
 import {cookieExists} from "../js/utils.js"
 import {fetchStacks} from "../js/api-client"
-import {stacks} from '../js/state'
+import {fetchCards} from "../js/api-client"
+import {stacks, cards, current_stack_id, current_card_id, current_stack_index, editStackName, editStackDescription} from '../js/state'
 
 
 const router = f7.views.main.router;
 
 
-const current_stack_id = ref(0);
-const current_card_id = ref(1);
 const current_card_question = computed(() => {
-  return cards.value.find(card => card.id === current_card_id.value)?.question;
+  return cards.value.find(card => card.id === current_card_id.value)?.front;
 });
 const current_card_answer = computed(() => {
-  return cards.value.find(card => card.id === current_card_id.value)?.answer;
+  return cards.value.find(card => card.id === current_card_id.value)?.back;
 });
 const current_card_state = ref(true);
 
@@ -84,31 +83,11 @@ onMounted(async () => {
     f7.loginScreen.open("my-login-screen");
   }
 })
-const cards = ref([
-  {
-    id: 1,
-    question: "What is the capital of France?",
-    answer: "Paris",
-    visible: true
-  },
-  {
-    id: 2,
-    question: "What is the capital of Germany?",
-    answer: "Berlin",
-    visible: false
-  },
-  {
-    id: 3,
-    question: "What is the capital of Italy?",
-    answer: "Rome",
-    visible: false
-  },
-])
 
 async function loadStacks() {
   const response = await fetchStacks()
   if (response.status === 401) {
-    f7.loginScreen.open("my-login-screen")
+    f7.loginScreen.open("#my-login-screen")
   } else {
     response.json().then(data => {
       if (data.length > 0) {
@@ -124,24 +103,33 @@ function confirmDeletion() {
   })
 }
 
-function openEditPopup() {
+async function openEditPopup(index: number) {
+  current_stack_index.value = index;
+  editStackName.value = stacks.value[index].name;
+  editStackDescription.value = stacks.value[index].description
   f7.popup.create({
     el: "#edit-popup",
   }).open();
+  await loadCards(stacks.value[index].id)
 }
 
-function learnStack(id: number) {
+async function learnStack(id: number) {
   f7.dialog.alert(`You clicked on stack with id ${id}`);
   current_card_id.value = 1;
   current_stack_id.value = id;
   f7.popup.create({
     el: "#learn-popup",
   }).open();
-  loadCards(id);
+  await loadCards(id);
 }
 
-function loadCards(stackid: number) {
-
+async function loadCards(stackid: number) {
+  const response = await fetchCards(stackid);
+  if (response.ok) {
+    cards.value = await response.json()
+  } else {
+    f7.loginScreen.open("my-login-screen")
+  }
 }
 
 function incrementCard(known: boolean) {

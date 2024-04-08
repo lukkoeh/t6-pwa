@@ -99,7 +99,7 @@
                     <div class="item-inner">
                       <div class="item-title item-label">Name</div>
                       <div class="item-input-wrap">
-                        <input type="text" name="name" placeholder="Stack name"/>
+                        <input v-model="editStackName.value" type="text" name="name" placeholder="Stack name"/>
                       </div>
                     </div>
                   </div>
@@ -205,13 +205,27 @@
 import {ref, onMounted, provide} from 'vue';
 import {f7} from 'framework7-vue';
 import {fetchStacks} from "@/js/api-client";
-import {stacks} from  "../js/state.js"
+import {stacks, editStackName, current_stack_index, createStackDescription, editStackDescription} from "../js/state.js"
 
 
 import routes from '../js/routes.js';
 import store from '../js/store';
 
 export default {
+  computed: {
+    editStackDescription() {
+      return editStackDescription
+    },
+    createStackDescription() {
+      return createStackDescription
+    },
+    editStackName() {
+      return editStackName
+    },
+    current_stack_name() {
+      return current_stack_name
+    }
+  },
   methods: {
     async createStack() {
       const res = await fetch('api/stack', {
@@ -245,9 +259,23 @@ export default {
 
       f7.popup.close();
     },
-    editStack() {
+    async editStack() {
       // TODO: Implement edit Routine
-      alert("edit")
+      const response = await fetch("/api/stack", {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: stacks.value[current_stack_index].id,
+          name: editStackName.value,
+          description: editStackDescription.value
+        })
+      })
+      if (response.ok) {
+        //stacks.value[current_stack_index].name = editStackName.value
+        //stacks.value[current_stack_index].description = editStackDescription.value
+      }
       f7.popup.close();
     },
     openProfilePopup() {
@@ -307,7 +335,7 @@ export default {
     const newPassword = ref('');
     const newPasswordRepeat = ref('');
 
-    onMounted(() => {
+    onMounted(async () => {
     });
     return {
       f7params,
@@ -317,7 +345,7 @@ export default {
       oldPassword,
       newPassword,
       newPasswordRepeat,
-      createStackName
+      createStackName,
     }
   }
 }
