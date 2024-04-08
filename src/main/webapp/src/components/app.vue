@@ -105,7 +105,97 @@
                 </li>
               </ul>
             </form>
+            <f7-button fill @click="openCardCreatePopUp">Create new card</f7-button>
+            <div class="card" v-for="card in cards" :key="card.id">
+              <div class="card-header">Card: {{ card.id }}</div>
+              <div class="card-content card-content-padding">
+                <p><b>Question: </b>{{ card.question }}</p>
+                <p><b>Answer: </b>{{card.answer}}</p>
+              </div>
+              <div class="card-footer">
+                <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 100%; gap: 10px;">
+                  <f7-button fill class="button" @click.stop="openCardEditPopUp">Edit</f7-button>
+                  <f7-button fill class="color-red" @click.stop="deleteCard">Delete</f7-button>
+                </div>
+              </div>
+            </div>
             <f7-button @click="editStack" fill>Save edits</f7-button>
+          </f7-block>
+        </f7-page>
+      </f7-view>
+    </f7-popup>
+
+    <!-- Popup -->
+    <f7-popup id="edit-card-popup" class="edit-card-popup">
+      <f7-view>
+        <f7-page>
+          <f7-navbar title="Edit Card">
+            <f7-nav-right>
+              <f7-link popup-close>Close</f7-link>
+            </f7-nav-right>
+          </f7-navbar>
+          <f7-block>
+            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
+              <ul>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Question</div>
+                      <div class="item-input-wrap">
+                        <input type="text" name="Question" placeholder="What is 2+2?" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Answer</div>
+                      <div class="item-input-wrap">
+                        <input type="text" name="Answer" placeholder="42" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+            <f7-button @click="editCard" fill>Save edits</f7-button>
+          </f7-block>
+        </f7-page>
+      </f7-view>
+    </f7-popup>
+
+    <!-- Popup -->
+    <f7-popup id="create-card-popup" class="create-card-popup">
+      <f7-view>
+        <f7-page>
+          <f7-navbar title="Create Card">
+            <f7-nav-right>
+              <f7-link popup-close>Close</f7-link>
+            </f7-nav-right>
+          </f7-navbar>
+          <f7-block>
+            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
+              <ul>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Question</div>
+                      <div class="item-input-wrap">
+                        <input type="text" name="Question" placeholder="What is 2+2?" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Answer</div>
+                      <div class="item-input-wrap">
+                        <input type="text" name="Answer" placeholder="42" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+            <f7-button @click="createCard" fill>Save new card</f7-button>
           </f7-block>
         </f7-page>
       </f7-view>
@@ -227,13 +317,29 @@
       editProfile() {
         // TODO: Implement edit Profile Routine with data provided in this.name, this.oldPassword, this.newPassword, this.newPasswordRepeat
       },
+      editCard() {
+        // TODO: Implement Card Editing
+      },
+      deleteCard() {
+        // TODO: Implement Card Deletion
+      },
+      createCard() {
+        // TODO: Implement Card Creation
+        f7.popup.close("#create-card-popup");
+      },
+      openCardEditPopUp() {
+        f7.popup.open("#edit-card-popup");
+      },
+      openCardCreatePopUp() {
+        f7.popup.open("#create-card-popup");
+      },
       async performLogin() {
         const searchParams = [["login_username", this.username],["login_password", this.password]];
 
         const urlFormData = new URLSearchParams(searchParams);
         console.log(urlFormData);
 
-        const res = await fetch('/auth', {
+        const res = await fetch( this.apiHost + 'auth', {
           method: 'POST',
           body: urlFormData
         });
@@ -263,6 +369,8 @@
       // Login screen data
       const username = ref('');
       const password = ref('');
+      const apiHost = "http://localhost:8080/"
+      provide('apiHost', apiHost);
 
       // Edit Profile popup data
       const name = ref('');
@@ -276,6 +384,26 @@
           f7.loginScreen.open("#my-login-screen")
         });
       });
+      const cards = ref([
+        {
+          id: 1,
+          question: "What is the capital of France?",
+          answer: "Paris",
+          visible: true
+        },
+        {
+          id: 2,
+          question: "What is the capital of Germany?",
+          answer: "Berlin",
+          visible: false
+        },
+        {
+          id: 3,
+          question: "What is the capital of Italy?",
+          answer: "Rome",
+          visible: false
+        },
+      ])
       return {
         f7params,
         username,
@@ -284,7 +412,8 @@
         name,
         oldPassword,
         newPassword,
-        newPasswordRepeat
+        newPasswordRepeat,
+        cards
       }
     }
   }
