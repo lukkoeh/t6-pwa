@@ -21,6 +21,8 @@ public class CardStack {
 
     public String description;
 
+    public int card_count;
+
     public void setName(String name) {
         this.name = name;
     }
@@ -34,6 +36,7 @@ public class CardStack {
 
     public void setFlashcards( List<Flashcard> flashcards ) {
         this.flashcards = flashcards;
+        this.card_count = flashcards.size();
     }
 
     @OneToMany(mappedBy = "stack", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.MERGE })
