@@ -15,44 +15,16 @@
     </f7-block>
     <f7-block-title>Your Stacks</f7-block-title>
 
-    <div class="card">
-      <div class="card-header">Some random Stack of cards</div>
+    <div class="card" v-for="stack in stacks" :key="stack.id">
+      <div class="card-header">{{ stack.name }}</div>
       <div class="card-content card-content-padding">
-        <p>A random description for your stack. Lorem Lorem Ipsumus Maximus.</p>
+        <p>{{stack.description}}</p>
       </div>
       <div class="card-footer">
-        <p style="border: 1px solid #333; color: #000; background-color: #eee;" class="button">64 Cards</p>
+        <p style="border: 1px solid #333; color: #000; background-color: #eee;" class="button">{{stack.cards}} Cards</p>
         <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
           <f7-button fill class="popup-open" data-popup=".edit-popup">Edit</f7-button>
           <f7-button fill class="color-red" @click="confirmDeletion">Delete</f7-button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">Some random Stack of cards</div>
-      <div class="card-content card-content-padding">
-        <p>A random description for your stack. Lorem Lorem Ipsumus Maximus.</p>
-      </div>
-      <div class="card-footer">
-        <p style="border: 1px solid #333; color: #000; background-color: #efefef;" class="button">64 Cards</p>
-        <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
-          <f7-button fill class="popup-open" data-popup=".edit-popup">Edit</f7-button>
-          <f7-button fill class="color-red">Delete</f7-button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">Some random Stack of cards</div>
-      <div class="card-content card-content-padding">
-        <p>A random description for your stack. Lorem Lorem Ipsumus Maximus.</p>
-      </div>
-      <div class="card-footer">
-        <p style="border: 1px solid #333; color: #000; background-color: #eee;" class="button">64 Cards</p>
-        <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
-          <f7-button fill class="popup-open" data-popup=".edit-popup">Edit</f7-button>
-          <f7-button fill class="color-red">Delete</f7-button>
         </div>
       </div>
     </div>
@@ -60,6 +32,13 @@
 </template>
 <script setup lang="ts">
 import {f7} from "framework7-vue";
+import {ref} from "vue";
+
+const stacks = ref([
+  {id: 1, name: "Some random Stack of cards", description: "A random description for your stack. Lorem Lorem Ipsumus Maximus34", cards: 64},
+  {id: 2, name: "Some random Stack of cards", description: "A random description for your stack. Lorem Lorem Ipsumus Maximus56", cards: 64},
+  {id: 3, name: "Some random Stack of cards", description: "A random description for your stack. Lorem Lorem Ipsumus Maximus78", cards: 64},
+])
 
 const refreshData = () => {
   alert("reload")
@@ -67,7 +46,7 @@ const refreshData = () => {
 
 function confirmDeletion() {
   f7.dialog.confirm("Do you want to delete this resource?", ()=> {
-    alert("implement deletion routine here")
+    // TODO: Implement deletion logic here
   })
 }
 </script>

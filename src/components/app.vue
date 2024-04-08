@@ -154,12 +154,14 @@
   </f7-app>
 </template>
 <script>
-  import { ref, onMounted } from 'vue';
+import {ref, onMounted, toValue} from 'vue';
   import { f7, f7ready } from 'framework7-vue';
 
 
   import routes from '../js/routes.js';
   import store from '../js/store';
+  import * as username from "dom7";
+  import * as password from "dom7";
 
   export default {
     methods: {
@@ -175,7 +177,9 @@
       },
       performLogin() {
         // TODO: Implement Login Routine
-        f7.loginScreen.close();
+        f7.dialog.alert('Username: ' + this.username + '<br>Password: ' + this.password, () => {
+          f7.loginScreen.close();
+        });
       }
     },
     setup() {
@@ -201,11 +205,6 @@
       const username = ref('');
       const password = ref('');
 
-      const alertLoginData = () => {
-        f7.dialog.alert('Username: ' + username.value + '<br>Password: ' + password.value, () => {
-          f7.loginScreen.close();
-        });
-      }
       onMounted(() => {
         f7ready(() => {
           // Call F7 APIs here
@@ -216,7 +215,6 @@
         f7params,
         username,
         password,
-        alertLoginData
       }
     }
   }
