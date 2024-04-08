@@ -19,10 +19,15 @@ public class CardStack {
 
     public String name;
 
+    public String description;
+
     public void setName(String name) {
         this.name = name;
     }
 
+    public void setDescription(String desc) {
+        this.description = desc;
+    }
     @JsonIgnore
     @ManyToOne(optional = false)
     public User user;
