@@ -72,6 +72,14 @@
                       </div>
                     </div>
                   </div>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Description</div>
+                      <div class="item-input-wrap">
+                        <input type="text" name="description" placeholder="Description" />
+                      </div>
+                    </div>
+                  </div>
                 </li>
               </ul>
             </form>
