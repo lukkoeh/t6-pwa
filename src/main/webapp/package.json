@@ -10,7 +10,7 @@
     "dev": "cross-env NODE_ENV=development vite",
     "build": "cross-env NODE_ENV=production vite build && npx workbox generateSW workbox-config.js",
     "postinstall": "cpy --flat ./node_modules/framework7-icons/fonts/*.* ./src/fonts/ && cpy --flat ./node_modules/material-icons/iconfont/*.* ./src/fonts/",
-    "watch": "vue-cli-service build --mode=development --watch --dest ../resources/META-INF/resources/",
+    "watch": "cross-env NODE_ENV=development vite build --watch",
     "prod": "vue-cli-service build --dest ../resources/META-INF/resources/"
   },
   "browserslist": [

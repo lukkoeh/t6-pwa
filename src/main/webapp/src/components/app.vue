@@ -233,7 +233,7 @@
         const urlFormData = new URLSearchParams(searchParams);
         console.log(urlFormData);
 
-        const res = await fetch( this.apiHost + 'auth', {
+        const res = await fetch('/auth', {
           method: 'POST',
           body: urlFormData
         });
@@ -263,8 +263,6 @@
       // Login screen data
       const username = ref('');
       const password = ref('');
-      const apiHost = "http://t6.lukkoeh.com/"
-      provide('apiHost', apiHost);
 
       // Edit Profile popup data
       const name = ref('');

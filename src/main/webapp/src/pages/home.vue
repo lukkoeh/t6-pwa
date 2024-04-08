@@ -63,7 +63,6 @@ import {cookieExists}                     from "../js/utils.js"
 const router = f7.views.main.router;
 
 
-const apiHost          = inject('apiHost');
 const current_stack_id = ref(0);
 const current_card_id = ref(1);
 const current_card_question = computed(()=> {
@@ -125,7 +124,7 @@ onMounted(async () => {
 
   async function loadStacks ()
   {
-    const response = await fetch(apiHost + 'api/stack', {
+    const response = await fetch('api/stack', {
       headers: {
         'Accept': 'application/json'
       }
