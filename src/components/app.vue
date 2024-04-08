@@ -154,7 +154,7 @@
   </f7-app>
 </template>
 <script>
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, provide } from 'vue';
   import { f7, f7ready } from 'framework7-vue';
 
 
@@ -164,7 +164,6 @@
   export default {
     methods: {
       createStack() {
-        // TODO: Implement create Routine
         alert("create")
         f7.popup.close();
       },
@@ -179,7 +178,7 @@
         const urlFormData = new URLSearchParams(searchParams);
         console.log(urlFormData);
 
-        const res = await fetch(this.apiHost + 'auth', {
+        const res = await fetch( this.apiHost + 'auth', {
           method: 'POST',
           body: urlFormData
         });
@@ -209,7 +208,8 @@
       // Login screen data
       const username = ref('');
       const password = ref('');
-      const apiHost = "http://localhost:8080/";
+      const apiHost = "http://localhost:8080/"
+      provide('apiHost', apiHost);
 
       onMounted(() => {
         f7ready(() => {

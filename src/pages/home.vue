@@ -39,62 +39,91 @@
           </f7-nav-right>
         </f7-navbar>
         <f7-block>
-          <p>Stack No: {{current_stack_id}}</p>
+          <p>Stack No: {{ current_stack_id }}</p>
         </f7-block>
       </f7-page>
     </f7-view>
   </f7-popup>
 </template>
 <script setup lang="ts">
-import {f7} from "framework7-vue";
-import {nextTick, onMounted, ref} from "vue";
+import {f7}                               from "framework7-vue";
+import { onMounted, inject, ref} from "vue";
+import {cookieExists}                     from "../js/utils.js"
 
+const router = f7.views.main.router;
+
+
+const apiHost          = inject('apiHost');
 const current_stack_id = ref(0);
-const stacks = ref([
-  {
-    id: 1,
-    name: "Some random Stack of cards",
-    description: "A random description for your stack. Lorem Lorem Ipsumus Maximus34",
-    cards: 64
-  },
-  {
-    id: 2,
-    name: "Another stack of cards",
-    description: "A random description for your stack. Lorem Lorem Ipsumus Maximus56",
-    cards: 64
-  },
-  {
-    id: 3,
-    name: "The third is the best",
-    description: "A random description for your stack. Lorem Lorem Ipsumus Maximus78",
-    cards: 64
-  },
-])
 
-onMounted(() => {
-  loadStacks();
+const stacks = ref([
+                     {
+                       id:          1,
+                       name:        "Some random Stack of cards",
+                       description: "A random description for your stack. Lorem Lorem Ipsumus Maximus34",
+                       cards:       64
+                     },
+                     {
+                       id:          2,
+                       name:        "Another stack of cards",
+                       description: "A random description for your stack. Lorem Lorem Ipsumus Maximus56",
+                       cards:       64
+                     },
+                     {
+                       id:          3,
+                       name:        "The third is the best",
+                       description: "A random description for your stack. Lorem Lorem Ipsumus Maximus78",
+                       cards:       64
+                     },
+                   ])
+
+onMounted(async () => {
+  if ( cookieExists("quarkus-credential") ) {
+    await loadStacks();
+  } else {
+    //f7.loginScreen.open("#my-login-screen")
+    router.navigate("/form/")
+  }
 });
 
-function loadStacks() {
+async function loadStacks ()
+{
+  const response = await fetch(apiHost + 'api/stack', {
+    headers: {
+      'Accept': 'application/json'
+    }
+  })
+  if ( response.status === 401 ) {
+    router.navigate("/form/")
+  } else {
+    response.json().then(data => {
+      if ( data.length > 0 ) {
+        stacks.value = data;
+      }
+    })
+  }
 }
 
-function confirmDeletion() {
+function confirmDeletion ()
+{
   f7.dialog.confirm("Do you want to delete this resource?", () => {
     // TODO: Implement deletion logic here
   })
 }
 
-function openEditPopup() {
+function openEditPopup ()
+{
   f7.popup.create({
-    el: "#edit-popup",
-  }).open();
+                    el: "#edit-popup",
+                  }).open();
 }
 
-function learnStack(id: number) {
+function learnStack ( id: number )
+{
   f7.dialog.alert(`You clicked on stack with id ${id}`);
   current_stack_id.value = id;
   f7.popup.create({
-    el: "#learn-popup",
-  }).open();
+                    el: "#learn-popup",
+                  }).open();
 }
 </script>
