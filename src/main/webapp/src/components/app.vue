@@ -423,9 +423,14 @@ export default {
     logout() {
       // TODO: Implement logout logic to remove cookie
     },
-    openProfilePopup() {
+    async openProfilePopup() {
+      const response = await fetch('/api/user')
+      if (response.ok) {
+        this.name = await response.text()
+      } else {
+        f7.dialog.alert("There was an error while fetching user data.")
+      }
       f7.popup.open('#profile-popup');
-      // TODO: Prefill existing name from API
     },
     editProfile() {
       // TODO: Implement edit Profile Routine with data provided in this.name, this.oldPassword, this.newPassword, this.newPasswordRepeat
