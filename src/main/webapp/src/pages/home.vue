@@ -76,12 +76,11 @@ import {
 const router = f7.views.main.router;
 
 
-const current_card_question = computed(() => {
-  return cards.value.find(card => card.id === current_card_id.value)?.front;
-});
-const current_card_answer = computed(() => {
-  return cards.value.find(card => card.id === current_card_id.value)?.back;
-});
+const current_card_index = ref(0)
+
+const current_card_question = ref("")
+const current_card_answer = ref("")
+
 const current_card_state = ref(true);
 
 onMounted(async () => {
@@ -138,13 +137,49 @@ async function confirmStackDeletion(index: number) {
   }
 
   async function learnStack(id: number) {
-    f7.dialog.alert(`You clicked on stack with id ${id}`);
-    current_card_id.value = 1;
+    await loadCards(id);
+    current_card_index.value = getNextCardIndex()
+
+    current_card_id.value = cards.value[current_card_index.value].id;
+
+    current_card_question.value = cards.value[current_card_index.value].front
+    current_card_answer.value = cards.value[current_card_index.value].back
     current_stack_id.value = id;
     f7.popup.create({
       el: "#learn-popup",
     }).open();
-    await loadCards(id);
+  }
+
+  function getNextCardIndex() {
+    let isFinished = true;
+
+    for (let card of cards.value) {
+      if (card.probability > 0) {
+        isFinished = false;
+      }
+    }
+
+    if (isFinished) {
+      return -1;
+    }
+    let viableCards = []
+    while (viableCards.length === 0) {
+      const seed = Math.random()
+      cards.value.forEach(c => {
+        if (seed <= c.probability && seed > 0) {
+          viableCards.push(c)
+        }
+      })
+    }
+    const retCard  = viableCards[Math.floor(Math.random() * (viableCards.length))]
+
+    for (let i = 0; i < cards.value.length; i++) {
+      if (cards.value[i].id == retCard.id) {
+        return i
+      }
+    }
+
+    return -1
   }
 
   async function loadCards(stackid: number) {
@@ -156,16 +191,60 @@ async function confirmStackDeletion(index: number) {
     }
   }
 
-  function incrementCard(known: boolean) {
+  async function incrementCard(known: boolean) {
     if (known) {
-      f7.dialog.alert("Correct!");
+      decProb()
     } else {
-      f7.dialog.alert("Incorrect!");
+      incProb()
     }
-    current_card_id.value++;
-    if (current_card_id.value > cards.value.length) {
-      f7.dialog.alert("You have finished the stack!");
+    current_card_index.value = getNextCardIndex()
+
+    if (current_card_index.value < 0) {
+      cards.value.forEach(c => {
+        c.probability = 0.1;
+      })
+      f7.dialog.alert("You have finished the stack!")
+      const response = await fetch("/api/stack/", {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id: stacks.value[current_stack_index.value].id,
+          name: stacks.value[current_stack_index.value].name,
+          flashcards: cards.value,
+        })
+      })
+      if (response.ok) {
+        f7.dialog.alert("Progress was reset!")
+      }
+
       f7.popup.close();
+      return;
+    }
+
+    current_card_question.value = cards.value[current_card_index.value].front
+    current_card_answer.value = cards.value[current_card_index.value].back
+
+  }
+
+  function incProb() {
+    if(cards.value[current_card_index.value].probability < 1) {
+      cards.value[current_card_index.value].probability =
+        Math.round((cards.value[current_card_index.value].probability + 0.05)*100)/100
+    }
+    if(cards.value[current_card_index.value].probability > 1) {
+      cards.value[current_card_index.value].probability = 1
     }
   }
+function decProb() {
+  if(cards.value[current_card_index.value].probability > 0) {
+    cards.value[current_card_index.value].probability =
+      Math.round((cards.value[current_card_index.value].probability - 0.05)*100)/100
+  }
+
+  if(cards.value[current_card_index.value].probability < 0.05) {
+    cards.value[current_card_index.value].probability = 0
+  }
+}
 </script>

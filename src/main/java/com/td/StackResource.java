@@ -75,9 +75,9 @@ public class StackResource {
                                                   stack.flashcards.forEach(crd -> crd.stack = stack);
                                                   cardStack.flashcards = stack.flashcards;
                                                   cardStack.card_count = 0;
-                                                  //if(cardStack.flashcards != null) {
-                                                      //cardStack.card_count = stack.flashcards.size();
-                                                  //}
+                                                  if(cardStack.flashcards != null) {
+                                                      cardStack.card_count = cardStack.flashcards.size();
+                                                  }
                                                   cardStack.name = stack.name;
                                                   return s.merge(cardStack).replaceWith(Response.ok()::build);
                                               }).onItem().ifNull().continueWith(Response.status(400).build())));

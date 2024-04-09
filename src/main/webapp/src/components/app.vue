@@ -556,7 +556,7 @@ export default {
         })
       })
       if (response.ok) {
-        f7.dialog.alert("Profile was updated successfully")
+        f7.dialog.alert("Profile was updated successfully!")
       }
       else if (response.status === 500) {
         deleteCookie('quarkus-credential')
