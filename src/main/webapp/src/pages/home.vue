@@ -25,11 +25,12 @@
           Cards</p>
         <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
           <f7-button fill class="button" @click.stop="openEditPopup(index)">Edit</f7-button>
-          <f7-button fill class="color-red" @click.stop="confirmDeletion(index)">Delete</f7-button>
+          <f7-button fill class="color-red" @click.stop="confirmStackDeletion(index)">Delete</f7-button>
         </div>
       </div>
     </div>
   </f7-page>
+
   <f7-popup id="learn-popup" class="learn-popup-cl">
     <f7-view>
       <f7-page>
@@ -61,7 +62,15 @@ import {computed, onMounted, inject, ref, nextTick} from "vue";
 import {cookieExists} from "../js/utils.js"
 import {fetchStacks} from "../js/api-client"
 import {fetchCards} from "../js/api-client"
-import {stacks, cards, current_stack_id, current_card_id, current_stack_index, editStackName, editStackDescription} from '../js/state'
+import {
+  stacks,
+  cards,
+  current_stack_id,
+  current_card_id,
+  current_stack_index,
+  editStackName,
+  editStackDescription
+} from '../js/state'
 
 
 const router = f7.views.main.router;
@@ -76,7 +85,7 @@ const current_card_answer = computed(() => {
 const current_card_state = ref(true);
 
 onMounted(async () => {
-  f7ready(async ()=>{
+  f7ready(async () => {
     if (cookieExists("quarkus-credential")) {
       await loadStacks();
     } else {
@@ -99,51 +108,72 @@ async function loadStacks() {
   }
 }
 
-function confirmDeletion(id: number) {
-  f7.dialog.confirm("Do you want to delete this resource?", () => {
-    // TODO: Implement deletion logic here
+async function confirmStackDeletion(id: number) {
+  f7.dialog.confirm("Do you want to delete this resource?", async () => {
+    const res = await fetch(`api/stack/${id}`, {
+      method: 'DELETE',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: id
+      })
+    }).then(async (r) => {
+      if (r.ok) {
+        const response = await fetchStacks()
+        if (response.status === 401) {
+          f7.loginScreen.open("my-login-screen")
+        } else {
+          response.json().then(data => {
+            if (data.length > 0) {
+              stacks.value = data;
+            }
+          })
+        }
+      }
+    })
   })
 }
 
-async function openEditPopup(index: number) {
-  current_stack_index.value = index;
-  editStackName.value = stacks.value[index].name;
-  editStackDescription.value = stacks.value[index].description
-  f7.popup.create({
-    el: "#edit-popup",
-  }).open();
-  await loadCards(stacks.value[index].id)
-}
-
-async function learnStack(id: number) {
-  f7.dialog.alert(`You clicked on stack with id ${id}`);
-  current_card_id.value = 1;
-  current_stack_id.value = id;
-  f7.popup.create({
-    el: "#learn-popup",
-  }).open();
-  await loadCards(id);
-}
-
-async function loadCards(stackid: number) {
-  const response = await fetchCards(stackid);
-  if (response.ok) {
-    cards.value = await response.json()
-  } else {
-    f7.loginScreen.open("my-login-screen")
+  async function openEditPopup(index: number) {
+    current_stack_index.value = index;
+    editStackName.value = stacks.value[index].name;
+    editStackDescription.value = stacks.value[index].description
+    f7.popup.create({
+      el: "#edit-popup",
+    }).open();
+    await loadCards(stacks.value[index].id)
   }
-}
 
-function incrementCard(known: boolean) {
-  if (known) {
-    f7.dialog.alert("Correct!");
-  } else {
-    f7.dialog.alert("Incorrect!");
+  async function learnStack(id: number) {
+    f7.dialog.alert(`You clicked on stack with id ${id}`);
+    current_card_id.value = 1;
+    current_stack_id.value = id;
+    f7.popup.create({
+      el: "#learn-popup",
+    }).open();
+    await loadCards(id);
   }
-  current_card_id.value++;
-  if (current_card_id.value > cards.value.length) {
-    f7.dialog.alert("You have finished the stack!");
-    f7.popup.close();
+
+  async function loadCards(stackid: number) {
+    const response = await fetchCards(stackid);
+    if (response.ok) {
+      cards.value = await response.json()
+    } else {
+      f7.loginScreen.open("my-login-screen")
+    }
   }
-}
+
+  function incrementCard(known: boolean) {
+    if (known) {
+      f7.dialog.alert("Correct!");
+    } else {
+      f7.dialog.alert("Incorrect!");
+    }
+    current_card_id.value++;
+    if (current_card_id.value > cards.value.length) {
+      f7.dialog.alert("You have finished the stack!");
+      f7.popup.close();
+    }
+  }
 </script>

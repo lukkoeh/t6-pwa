@@ -1,17 +1,9 @@
 package com.td.model;
 
 public class UserProfile {
-    public String oldUsername;
     public String newUsername;
 
     public String newPassword;
-    public String getOldUsername() {
-        return oldUsername;
-    }
-
-    public void setOldUsername( String oldUsername ) {
-        this.oldUsername = oldUsername;
-    }
 
     public String getNewUsername() {
         return newUsername;

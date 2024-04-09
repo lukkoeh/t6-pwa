@@ -124,7 +124,7 @@
               </ul>
             </form>
             <f7-button fill @click="openCardCreatePopUp">Create new card</f7-button>
-            <div class="card" v-for="card in cards.value" :key="card.id">
+            <div class="card" v-for="(card, index) in cards.value" :key="card.id">
               <div class="card-header">Card: {{ card.id }}</div>
               <div class="card-content card-content-padding">
                 <p><b>Question: </b>{{ card.front }}</p>
@@ -132,8 +132,8 @@
               </div>
               <div class="card-footer">
                 <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 100%; gap: 10px;">
-                  <f7-button fill class="button" @click.stop="openCardEditPopUp">Edit</f7-button>
-                  <f7-button fill class="color-red" @click.stop="deleteCard">Delete</f7-button>
+                  <f7-button fill class="button" @click.stop="openCardEditPopUp(index)">Edit</f7-button>
+                  <f7-button fill class="color-red" @click.stop="deleteCard(index)">Delete</f7-button>
                 </div>
               </div>
             </div>
@@ -161,6 +161,7 @@
                       <div class="item-title item-label">Question</div>
                       <div class="item-input-wrap">
                         <input v-model="editCardFront" type="text" name="Question" placeholder="What is 2+2?" />
+                        <p>DEBUG: {{editCardFront}}</p>
                       </div>
                     </div>
                   </div>
@@ -169,6 +170,7 @@
                       <div class="item-title item-label">Answer</div>
                       <div class="item-input-wrap">
                         <input v-model="editCardBack" type="text" name="Answer" placeholder="42" />
+                        <p>DEBUG: {{editCardBack}}</p>
                       </div>
                     </div>
                   </div>
@@ -273,7 +275,7 @@
                 </li>
               </ul>
             </form>
-            <f7-button @click="editProfile" fill>Save edits</f7-button>
+            <f7-button @click="saveEditedProfile" fill>Save edits</f7-button>
           </f7-block>
         </f7-page>
       </f7-view>
@@ -390,38 +392,71 @@ export default {
         stacks.value[current_stack_index.value].description = editStackDescription.value
       }
       },
-    editCard() {
-      // TODO: Implement Card Editing
+    async editCard() {
+      const card = {
+        id: cards.value[this.editCardIndex].id,
+        front: this.editCardFront,
+        back: this.editCardBack
+      }
+      const response = await fetch('/api/card/'+stacks.value[current_stack_index.value].id, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(card)
+      })
+      if (response.ok) {
+        cards.value[this.editCardIndex] = await response.json()
+        f7.popup.close("#edit-card-popup")
+      }
+
     },
-    deleteCard() {
-      // TODO: Implement Card Deletion
-    },
-    createCard() {
-      // TODO: Implement Card Creation
-      f7.popup.close("#create-card-popup");
-    },
-    openCardEditPopUp() {
-      f7.popup.open("#edit-card-popup");
-    },
-    async openCardCreatePopUp() {
-      const response = await fetch('/api/card/', {
+    async createCard() {
+      const card = {
+        front: this.createCardFront,
+        back: this.createCardBack,
+      }
+      const response = await fetch('/api/card/'+stacks.value[current_stack_index.value].id, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          front: this.createCardFront,
-          back: this.createCardBack,
-        })
+        body: JSON.stringify(card)
       })
       if (response.ok) {
-        cards.value.push()
+        cards.value.push(await response.json())
       }
 
+      f7.popup.close("#create-card-popup");
+    },
+    openCardEditPopUp(index) {
+      this.editCardIndex = index;
+      this.editCardFront = stacks.value[index].front
+      this.editCardBack = stacks.value[index].back
+      f7.popup.open("#edit-card-popup");
+    },
+    deleteCard(index) {
+      // TODO: Implement card deletion
+      f7.dialog.confirm("Do you want to delete this card?", async () => {
+        const response = await fetch('/api/card/'+stacks.value[current_stack_index.value].id, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'text/plain'
+          },
+          body: cards.value[index].id,
+
+        })
+        if (response.ok) {
+          cards.value.splice(index, 1)
+        }
+      })
+    },
+    async openCardCreatePopUp() {
       f7.popup.open("#create-card-popup");
     },
     logout() {
-      // TODO: Implement logout logic to remove cookie
+      document.cookie = 'quarkus-credential=; Max-Age=-99999999;';
+      f7.loginScreen.open("#my-login-screen")
     },
     async openProfilePopup() {
       const response = await fetch('/api/user')
@@ -432,8 +467,23 @@ export default {
       }
       f7.popup.open('#profile-popup');
     },
-    editProfile() {
-      // TODO: Implement edit Profile Routine with data provided in this.name, this.oldPassword, this.newPassword, this.newPasswordRepeat
+    async saveEditedProfile() {
+      const response = await fetch("/api/user", {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          newUsername: this.name,
+          newPassword: this.newPassword
+        })
+      })
+      if (response.ok) {
+        f7.dialog.alert("Profil erfolgreich aktualisiert!")
+      }
+      else {
+        f7.dialog.alert("Es ist ein Fehler aufgetreten.")
+      }
     },
     async performLogin() {
       const searchParams = [["login_username", this.username], ["login_password", this.password]];
@@ -448,7 +498,7 @@ export default {
         });
 
       if (!res.ok) {
-        f7.loginScreen.open("my-login-screen");
+        f7.loginScreen.open("#my-login-screen");
       } else {
         f7.loginScreen.close();
         const response = await fetchStacks();
@@ -492,6 +542,10 @@ export default {
     const newPassword = ref('');
     const newPasswordRepeat = ref('');
 
+    const editCardFront = ref('');
+    const editCardBack = ref('');
+    const editCardIndex = ref(0);
+
     onMounted(async () => {
     });
     return {
@@ -504,7 +558,10 @@ export default {
       newPasswordRepeat,
       createStackName,
       createCardFront,
-      createCardBack
+      createCardBack,
+      editCardFront,
+      editCardBack,
+      editCardIndex
     }
   }
 }

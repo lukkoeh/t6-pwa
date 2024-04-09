@@ -115,7 +115,7 @@ public class FlashcardResource {
                         fc.back        = card.back;
                         fc.probability = 0.1f;
                         return sCard.persist(fc).replaceWith(Response.ok()::build);
-                    })).replaceWith(Response.ok().build()).onItem().ifNull().failWith(new WebApplicationException(400));
+                    })).replaceWith(Response.ok(card).build()).onItem().ifNull().failWith(new WebApplicationException(400));
         });
 
     }

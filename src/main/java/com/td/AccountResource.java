@@ -29,9 +29,6 @@ public class AccountResource {
     @Consumes("application/json")
     public Uni<Response> updateUserProfile( @Context SecurityContext securityContext, UserProfile user ) {
         String username = securityContext.getUserPrincipal().getName();
-        if ( !user.oldUsername.equals(username) ) {
-            return Uni.createFrom().item(Response.status(400)::build);
-        }
         return Panache.withTransaction(() -> User.findByName(username)
                                                  .onItem().ifNotNull().invoke(u -> {
                                   u.username = user.newUsername;
