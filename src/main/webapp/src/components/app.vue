@@ -311,6 +311,10 @@ export default {
         f7.loginScreen.open("my-login-screen");
       } else {
         f7.loginScreen.close();
+        const response = await fetchStacks();
+        if (response.ok) {
+          stacks.value = await response.json();
+        }
       }
 
     }
