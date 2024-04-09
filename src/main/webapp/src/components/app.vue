@@ -124,7 +124,7 @@
               </ul>
             </form>
             <f7-button fill @click="openCardCreatePopUp">Create new card</f7-button>
-            <div class="card" v-for="card in cards" :key="card.id">
+            <div class="card" v-for="card in cards.value" :key="card.id">
               <div class="card-header">Card: {{ card.id }}</div>
               <div class="card-content card-content-padding">
                 <p><b>Question: </b>{{ card.front }}</p>
