@@ -36,7 +36,7 @@
       <f7-page>
         <f7-navbar title="Learn Stack">
           <f7-nav-right>
-            <f7-link popup-close>Close</f7-link>
+            <f7-link @click="cancelLearnSession">Close</f7-link>
           </f7-nav-right>
         </f7-navbar>
         <f7-block>
@@ -93,6 +93,24 @@ onMounted(async () => {
     }
   })
 })
+
+async function cancelLearnSession() {
+  const response = await fetch("api/stack/", {
+    method: 'PUT',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: stacks.value[current_stack_index.value].id,
+      name: stacks.value[current_stack_index.value].name,
+      flashcards: cards.value,
+    })
+  })
+  if (response.ok) {
+    f7.dialog.alert("Progress was saved!")
+  }
+  f7.popup.close();
+}
 
 async function loadStacks() {
   const response = await fetchStacks()
