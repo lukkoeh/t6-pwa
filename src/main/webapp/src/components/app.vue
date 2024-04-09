@@ -1,7 +1,5 @@
 <template>
-  <f7-app v-bind="f7params" @stack-confirmed-deletion="()=>{
-    alert('your mum')
-  }">
+  <f7-app v-bind="f7params">
 
     <!-- Left panel with cover effect-->
     <f7-panel left cover auto>
@@ -371,6 +369,7 @@ import {
 
 import routes from '../js/routes.js';
 import store from '../js/store';
+import {deleteCookie} from "@/js/utils";
 
 export default {
   computed: {
@@ -438,6 +437,7 @@ export default {
               if (data.length > 0) {
                 stacks.value = data;
                 this.createStackName = ""
+                this.createStackDescription.value = ""
               }
             })
           }
@@ -524,6 +524,7 @@ export default {
         })
         if (response.ok) {
           cards.value.splice(index, 1)
+          stacks.value[current_stack_index.value].card_count--;
         }
       })
     },
@@ -531,8 +532,8 @@ export default {
       f7.popup.open("#create-card-popup");
     },
     logout() {
-      document.cookie = 'quarkus-credential=; Max-Age=-99999999;';
-      f7.loginScreen.open("#my-login-screen")
+      deleteCookie('quarkus-credential')
+      window.location.reload();
     },
     async openProfilePopup() {
       const response = await fetch('/api/user')
@@ -555,15 +556,18 @@ export default {
         })
       })
       if (response.ok) {
-        f7.dialog.alert("Profil erfolgreich aktualisiert!")
+        f7.dialog.alert("Profile was updated successfully")
+      }
+      else if (response.status === 500) {
+        deleteCookie('quarkus-credential')
+        window.location.reload();
       }
       else {
-        f7.dialog.alert("Es ist ein Fehler aufgetreten.")
+        f7.dialog.alert("There was an error while updating your profile.")
       }
     },
     async performLogin() {
       const searchParams = [["login_username", this.username], ["login_password", this.password]];
-//
       const urlFormData = new URLSearchParams(searchParams);
       console.log(urlFormData);
       const router = f7.views.main.router;
@@ -626,8 +630,6 @@ export default {
     const createPassword = ref('');
     const createPasswordRepeat = ref('');
 
-    onMounted(async () => {
-    });
     return {
       f7params,
       username,

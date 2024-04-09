@@ -108,16 +108,10 @@ async function loadStacks() {
   }
 }
 
-async function confirmStackDeletion(id: number) {
+async function confirmStackDeletion(index: number) {
   f7.dialog.confirm("Do you want to delete this resource?", async () => {
-    const res = await fetch(`api/stack/${id}`, {
+    const res = await fetch(`api/stack/${stacks.value[index].id}`, {
       method: 'DELETE',
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        id: id
-      })
     }).then(async (r) => {
       if (r.ok) {
         const response = await fetchStacks()
@@ -125,9 +119,7 @@ async function confirmStackDeletion(id: number) {
           f7.loginScreen.open("my-login-screen")
         } else {
           response.json().then(data => {
-            if (data.length > 0) {
-              stacks.value = data;
-            }
+            stacks.value = data;
           })
         }
       }
