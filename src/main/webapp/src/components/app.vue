@@ -478,6 +478,9 @@ export default {
 
     const createStackName = ref('')
 
+    const createCardFront = ref("")
+    const createCardBack = ref("")
+
     // Edit Profile popup data
     const name = ref('');
     const oldPassword = ref('');
@@ -495,6 +498,8 @@ export default {
       newPassword,
       newPasswordRepeat,
       createStackName,
+      createCardFront,
+      createCardBack
     }
   }
 }
