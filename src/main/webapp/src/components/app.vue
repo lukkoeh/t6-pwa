@@ -12,18 +12,6 @@
           <div
               class="padding list list-strong-ios list-outline-ios media-list menu-list display-flex flex-direction-column justify-content-space-between align-items-center">
             <ul>
-              <li class="display-flex justify-content-center align-items-center">
-                <div class="item-media">
-                  <i class="icon material-icons if-md">home</i>
-                  <i class="icon f7-icons if-not-md">house</i>
-                </div>
-                <div class="item-inner">
-                  <div class="item-title-wrap">
-                    <div class="item-title">Home</div>
-                  </div>
-                  <div class="item-subtitle">Train your mind</div>
-                </div>
-              </li>
               <li class="display-flex justify-content-center align-items-center" @click="openProfilePopup()">
                 <div class="item-media">
                   <i class="icon material-icons if-md">person</i>
@@ -95,9 +83,6 @@
       <f7-view>
         <f7-page>
           <f7-navbar title="Edit stack">
-            <f7-nav-right>
-              <f7-link popup-close>Close</f7-link>
-            </f7-nav-right>
           </f7-navbar>
           <f7-block>
             <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
