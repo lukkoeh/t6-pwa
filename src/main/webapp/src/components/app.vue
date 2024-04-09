@@ -40,8 +40,9 @@
               </li>
             </ul>
           </div>
-          <f7-button fill style="position: absolute; bottom: 10px; width: calc(100% - 20px); left: 10px;">
-            <p>Log out</p>
+          <f7-button fill style="position: absolute; bottom: 20px; width: calc(100% - 40px); left: 20px;"
+                     @click="logout">
+            Log out
           </f7-button>
         </f7-page>
       </f7-view>
@@ -72,14 +73,16 @@
                         <input v-model="createStackName" type="text" name="name" placeholder="Stack name"/>
                       </div>
                     </div>
-                  </div><div class="item-content item-input">
-                  <div class="item-inner">
-                    <div class="item-title item-label">Name</div>
-                    <div class="item-input-wrap">
-                      <input v-model="createStackDescription.value" type="text" name="description" placeholder="Stack description"/>
+                  </div>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Name</div>
+                      <div class="item-input-wrap">
+                        <input v-model="createStackDescription.value" type="text" name="description"
+                               placeholder="Stack description"/>
+                      </div>
                     </div>
                   </div>
-                </div>
                 </li>
               </ul>
             </form>
@@ -120,7 +123,97 @@
                 </li>
               </ul>
             </form>
+            <f7-button fill @click="openCardCreatePopUp">Create new card</f7-button>
+            <div class="card" v-for="card in cards" :key="card.id">
+              <div class="card-header">Card: {{ card.id }}</div>
+              <div class="card-content card-content-padding">
+                <p><b>Question: </b>{{ card.front }}</p>
+                <p><b>Answer: </b>{{card.back}}</p>
+              </div>
+              <div class="card-footer">
+                <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 100%; gap: 10px;">
+                  <f7-button fill class="button" @click.stop="openCardEditPopUp">Edit</f7-button>
+                  <f7-button fill class="color-red" @click.stop="deleteCard">Delete</f7-button>
+                </div>
+              </div>
+            </div>
             <f7-button @click="editStack" fill>Save edits</f7-button>
+          </f7-block>
+        </f7-page>
+      </f7-view>
+    </f7-popup>
+
+    <!-- Popup -->
+    <f7-popup id="edit-card-popup" class="edit-card-popup">
+      <f7-view>
+        <f7-page>
+          <f7-navbar title="Edit Card">
+            <f7-nav-right>
+              <f7-link popup-close>Close</f7-link>
+            </f7-nav-right>
+          </f7-navbar>
+          <f7-block>
+            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
+              <ul>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Question</div>
+                      <div class="item-input-wrap">
+                        <input v-model="editCardFront" type="text" name="Question" placeholder="What is 2+2?" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Answer</div>
+                      <div class="item-input-wrap">
+                        <input v-model="editCardBack" type="text" name="Answer" placeholder="42" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+            <f7-button @click="editCard" fill>Save edits</f7-button>
+          </f7-block>
+        </f7-page>
+      </f7-view>
+    </f7-popup>
+
+    <!-- Popup -->
+    <f7-popup id="create-card-popup" class="create-card-popup">
+      <f7-view>
+        <f7-page>
+          <f7-navbar title="Create Card">
+            <f7-nav-right>
+              <f7-link popup-close>Close</f7-link>
+            </f7-nav-right>
+          </f7-navbar>
+          <f7-block>
+            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
+              <ul>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Question</div>
+                      <div class="item-input-wrap">
+                        <input v-model="createCardFront" type="text" name="Question" placeholder="What is 2+2?" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Answer</div>
+                      <div class="item-input-wrap">
+                        <input v-model="createCardBack" type="text" name="Answer" placeholder="42" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+            <f7-button @click="createCard" fill>Save new card</f7-button>
           </f7-block>
         </f7-page>
       </f7-view>
@@ -219,7 +312,14 @@
 import {ref, onMounted, provide} from 'vue';
 import {f7} from 'framework7-vue';
 import {fetchStacks} from "@/js/api-client";
-import {stacks, editStackName, current_stack_index, createStackDescription, editStackDescription} from "../js/state.js"
+import {
+  stacks,
+  editStackName,
+  current_stack_index,
+  createStackDescription,
+  editStackDescription,
+  cards
+} from "../js/state.js"
 
 
 import routes from '../js/routes.js';
@@ -227,6 +327,9 @@ import store from '../js/store';
 
 export default {
   computed: {
+    cards() {
+      return cards
+    },
     editStackDescription() {
       return editStackDescription
     },
@@ -286,7 +389,39 @@ export default {
         stacks.value[current_stack_index.value].name = editStackName.value
         stacks.value[current_stack_index.value].description = editStackDescription.value
       }
-      f7.popup.close();
+      },
+    editCard() {
+      // TODO: Implement Card Editing
+    },
+    deleteCard() {
+      // TODO: Implement Card Deletion
+    },
+    createCard() {
+      // TODO: Implement Card Creation
+      f7.popup.close("#create-card-popup");
+    },
+    openCardEditPopUp() {
+      f7.popup.open("#edit-card-popup");
+    },
+    async openCardCreatePopUp() {
+      const response = await fetch('/api/card/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          front: this.createCardFront,
+          back: this.createCardBack,
+        })
+      })
+      if (response.ok) {
+        cards.value.push()
+      }
+
+      f7.popup.open("#create-card-popup");
+    },
+    logout() {
+      // TODO: Implement logout logic to remove cookie
     },
     openProfilePopup() {
       f7.popup.open('#profile-popup');
@@ -302,10 +437,10 @@ export default {
       console.log(urlFormData);
       const router = f7.views.main.router;
 
-      const res = await fetch('/auth', {
-        method: 'POST',
-        body: urlFormData
-      });
+        const res = await fetch('/auth', {
+          method: 'POST',
+          body: urlFormData
+        });
 
       if (!res.ok) {
         f7.loginScreen.open("my-login-screen");
