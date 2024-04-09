@@ -27,6 +27,8 @@ public class StackResource {
     public Uni<Response> newStack( CardStack cardStack, @Context SecurityContext securityContext ) {
         return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(u -> {
             cardStack.user = u;
+            cardStack.card_count = 0;
+
             return sf.withSession(s -> s.createQuery(Filter.findByUserAndName(CardStack.class, sf, u, cardStack.name))
                                         .getSingleResultOrNull().onItem().ifNotNull()
                                         .transform(st -> Response.status(400).build()).onItem().ifNull().switchTo(
@@ -72,6 +74,10 @@ public class StackResource {
                                               .transformToUni(cardStack -> {
                                                   stack.flashcards.forEach(crd -> crd.stack = stack);
                                                   cardStack.flashcards = stack.flashcards;
+                                                  cardStack.card_count = 0;
+                                                  //if(cardStack.flashcards != null) {
+                                                      //cardStack.card_count = stack.flashcards.size();
+                                                  //}
                                                   cardStack.name = stack.name;
                                                   return s.merge(cardStack).replaceWith(Response.ok()::build);
                                               }).onItem().ifNull().continueWith(Response.status(400).build())));
@@ -85,6 +91,10 @@ public class StackResource {
                                               .transformToUni(cardStack -> {
                                                   cardStack.name = stack.name;
                                                   cardStack.description = stack.description;
+                                                  cardStack.card_count = 0;
+                                                  if(cardStack.getFlashcards() != null) {
+                                                      cardStack.card_count = cardStack.flashcards.size();
+                                                  }
                                                   return s.merge(cardStack).replaceWith(
                                                           Response.ok().build());
                                               })).onItem().ifNull().continueWith(Response.status(400).build()));

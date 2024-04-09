@@ -65,6 +65,11 @@ public class FlashcardResource {
                                     card.probability = 0.1f;
                                     card.stack       = stack;
                                     return tCard.persist(card);
+                                }).onItem().transformToUni(i ->{
+                                    return sf.withTransaction(tStack -> {
+                                       stack.card_count++;
+                                       return tStack.persist(stack);
+                                    });
                                 }).replaceWith(Response.status(201).entity(card).build())));
                     }));
         });
@@ -89,7 +94,13 @@ public class FlashcardResource {
 
             cquery.where(builder.and(pCard, pUser, pStack));
             return s.createQuery(cquery).getSingleResultOrNull().onItem()
-                    .transformToUni(s::remove)
+                    .transformToUni(c -> {
+                        CardStack stack = c.stack;
+                        stack.card_count--;
+
+                        return s.remove(c).onItem().transformToUni(t -> sf.withTransaction(tStack ->
+                        tStack.persist(stack)));
+                    })
                     .replaceWith(Response.ok().build()).onItem().ifNull().failWith(new WebApplicationException(400));
         });
     }

@@ -161,7 +161,6 @@
                       <div class="item-title item-label">Question</div>
                       <div class="item-input-wrap">
                         <input v-model="editCardFront" type="text" name="Question" placeholder="What is 2+2?" />
-                        <p>DEBUG: {{editCardFront}}</p>
                       </div>
                     </div>
                   </div>
@@ -170,7 +169,6 @@
                       <div class="item-title item-label">Answer</div>
                       <div class="item-input-wrap">
                         <input v-model="editCardBack" type="text" name="Answer" placeholder="42" />
-                        <p>DEBUG: {{editCardBack}}</p>
                       </div>
                     </div>
                   </div>
@@ -216,6 +214,52 @@
               </ul>
             </form>
             <f7-button @click="createCard" fill>Save new card</f7-button>
+          </f7-block>
+        </f7-page>
+      </f7-view>
+    </f7-popup>
+
+    <!-- Popup -->
+    <f7-popup id="register-popup" class="register-popup">
+      <f7-view>
+        <f7-page>
+          <f7-navbar title="Create an account">
+            <f7-nav-right>
+              <f7-button @click="returnToLogin">Already have an account?</f7-button>
+            </f7-nav-right>
+          </f7-navbar>
+          <f7-block>
+            <form class="list list-strong-ios list-dividers-ios list-outline-ios" id="my-form">
+              <ul>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Your Name</div>
+                      <div class="item-input-wrap">
+                        <input v-model="createName" type="text" name="Username" placeholder="Email or name" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Password</div>
+                      <div class="item-input-wrap">
+                        <input v-model="createPassword" type="password" name="password" placeholder="password" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Password</div>
+                      <div class="item-input-wrap">
+                        <input v-model="createPasswordRepeat" type="password" name="repeatpassword" placeholder="re-type-password" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+            <f7-button @click="performRegistration" fill>Create an account</f7-button>
           </f7-block>
         </f7-page>
       </f7-view>
@@ -302,8 +346,9 @@
           <f7-list>
             <f7-list-button title="Sign In" @click="performLogin"></f7-list-button>
             <f7-block-footer>
-              Some text about login information.<br>Click "Sign In" to close Login Screen
+              Not having an account is pretty cringe, but we can fix that.
             </f7-block-footer>
+            <f7-list-button title="Register" @click="openRegistrationPopUp"></f7-list-button>
           </f7-list>
         </f7-page>
       </f7-view>
@@ -343,6 +388,36 @@ export default {
     },
   },
   methods: {
+    async performRegistration() {
+        if (this.createPassword !== this.createPasswordRepeat) {
+        f7.dialog.alert("Passwords do not match.")
+        return
+      }
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: this.createName,
+          password: this.createPassword
+        })
+      })
+      if (response.ok) {
+        f7.popup.close("#register-popup");
+        f7.loginScreen.open("#my-login-screen");
+      } else {
+        f7.dialog.alert("There was an error while creating your account.")
+      }
+    },
+    returnToLogin() {
+      f7.popup.close("#register-popup");
+      f7.loginScreen.open("#my-login-screen");
+    },
+    async openRegistrationPopUp() {
+      f7.loginScreen.close();
+      f7.popup.open("#register-popup");
+    },
     async createStack() {
       const res = await fetch('api/stack', {
         method: 'POST',
@@ -351,7 +426,7 @@ export default {
         },
         body: JSON.stringify({
           name: this.createStackName,
-          description: "Default Description [TODO]"
+          description: this.createStackDescription.value,
         })
       }).then(async (r) => {
         if (r.ok) {
@@ -390,6 +465,7 @@ export default {
       if (response.ok) {
         stacks.value[current_stack_index.value].name = editStackName.value
         stacks.value[current_stack_index.value].description = editStackDescription.value
+        f7.popup.close("#edit-popup");
       }
       },
     async editCard() {
@@ -425,18 +501,19 @@ export default {
       })
       if (response.ok) {
         cards.value.push(await response.json())
+        this.createCardFront = ''
+        this.createCardBack = ''
       }
-
+      stacks.value[current_stack_index.value].card_count++;
       f7.popup.close("#create-card-popup");
     },
     openCardEditPopUp(index) {
       this.editCardIndex = index;
-      this.editCardFront = stacks.value[index].front
-      this.editCardBack = stacks.value[index].back
+      this.editCardFront = cards.value[index].front
+      this.editCardBack = cards.value[index].back
       f7.popup.open("#edit-card-popup");
     },
     deleteCard(index) {
-      // TODO: Implement card deletion
       f7.dialog.confirm("Do you want to delete this card?", async () => {
         const response = await fetch('/api/card/'+stacks.value[current_stack_index.value].id, {
           method: 'DELETE',
@@ -444,7 +521,6 @@ export default {
             'Content-Type': 'text/plain'
           },
           body: cards.value[index].id,
-
         })
         if (response.ok) {
           cards.value.splice(index, 1)
@@ -546,6 +622,10 @@ export default {
     const editCardBack = ref('');
     const editCardIndex = ref(0);
 
+    const createName = ref('');
+    const createPassword = ref('');
+    const createPasswordRepeat = ref('');
+
     onMounted(async () => {
     });
     return {
@@ -561,7 +641,10 @@ export default {
       createCardBack,
       editCardFront,
       editCardBack,
-      editCardIndex
+      editCardIndex,
+      createName,
+      createPassword,
+      createPasswordRepeat
     }
   }
 }
