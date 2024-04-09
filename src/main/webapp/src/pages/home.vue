@@ -56,7 +56,7 @@
   </f7-popup>
 </template>
 <script setup lang="ts">
-import {f7} from "framework7-vue";
+import {f7, f7ready} from "framework7-vue";
 import {computed, onMounted, inject, ref, nextTick} from "vue";
 import {cookieExists} from "../js/utils.js"
 import {fetchStacks} from "../js/api-client"
@@ -76,12 +76,14 @@ const current_card_answer = computed(() => {
 const current_card_state = ref(true);
 
 onMounted(async () => {
-  if (cookieExists("quarkus-credential")) {
-    await loadStacks();
-  } else {
-    //f7.loginScreen.open("#my-login-screen")
-    f7.loginScreen.open("my-login-screen");
-  }
+  f7ready(async ()=>{
+    if (cookieExists("quarkus-credential")) {
+      await loadStacks();
+    } else {
+      //f7.loginScreen.open("#my-login-screen")
+      f7.loginScreen.open("#my-login-screen");
+    }
+  })
 })
 
 async function loadStacks() {
