@@ -24,8 +24,8 @@
         <p style="border: 1px solid #333; color: #000; background-color: #eee;" class="button">{{ stack.card_count }}
           Cards</p>
         <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
-          <f7-button fill class="button" @click.stop="openEditPopup">Edit</f7-button>
-          <f7-button fill class="color-red" @click.stop="confirmDeletion">Delete</f7-button>
+          <f7-button fill class="button" @click.stop="openEditPopup(index)">Edit</f7-button>
+          <f7-button fill class="color-red" @click.stop="confirmDeletion(index)">Delete</f7-button>
         </div>
       </div>
     </div>
@@ -97,7 +97,7 @@ async function loadStacks() {
   }
 }
 
-function confirmDeletion() {
+function confirmDeletion(id: number) {
   f7.dialog.confirm("Do you want to delete this resource?", () => {
     // TODO: Implement deletion logic here
   })

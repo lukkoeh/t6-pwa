@@ -72,7 +72,14 @@
                         <input v-model="createStackName" type="text" name="name" placeholder="Stack name"/>
                       </div>
                     </div>
+                  </div><div class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Name</div>
+                    <div class="item-input-wrap">
+                      <input v-model="createStackDescription.value" type="text" name="description" placeholder="Stack description"/>
+                    </div>
                   </div>
+                </div>
                 </li>
               </ul>
             </form>
@@ -100,6 +107,13 @@
                       <div class="item-title item-label">Name</div>
                       <div class="item-input-wrap">
                         <input v-model="editStackName.value" type="text" name="name" placeholder="Stack name"/>
+                      </div>
+                    </div>
+                  </div><div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Description</div>
+                      <div class="item-input-wrap">
+                        <input v-model="editStackDescription.value" type="text" name="name" placeholder="Stack description"/>
                       </div>
                     </div>
                   </div>
@@ -222,9 +236,6 @@ export default {
     editStackName() {
       return editStackName
     },
-    current_stack_name() {
-      return current_stack_name
-    }
   },
   methods: {
     async createStack() {
@@ -260,7 +271,6 @@ export default {
       f7.popup.close();
     },
     async editStack() {
-      // TODO: Implement edit Routine
       const response = await fetch("/api/stack", {
         method: 'PATCH',
         headers: {
