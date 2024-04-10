@@ -39,22 +39,16 @@ async function pushClientStack(stack) {
         },
         body: JSON.stringify(stack)
     })
-    if (response.ok) {
-        console.log("push success!")
-    }
 }
 export async function loadStacks() {
     stacks.value = []
-    console.log("loadStacks called")
     if (is_offline.value) {
-        console.log("offline mode-2")
         let localStacks = []
         for (let key in localStorage) {
             if (key.startsWith("stack_")){
                 localStacks.push(JSON.parse(localStorage.getItem(key)))
             }
         }
-        console.log(localStacks)
         stacks.value = localStacks
     } else {
         const response = await fetchStacks()
@@ -64,7 +58,6 @@ export async function loadStacks() {
             response.json().then(async data => {
                 for (const remoteStack of data) {
                     const clientStack = JSON.parse(localStorage.getItem("stack_" + remoteStack.id));
-                    console.log("CLIENTSTACK:" + JSON.stringify(clientStack))
                     if (clientStack) {
                         const client_last_update = new Date(clientStack.last_update)
                         const remote_last_update = new Date(remoteStack.last_update)
@@ -78,7 +71,6 @@ export async function loadStacks() {
                             stacks.value.push(clientStack)
                         }
                     } else {
-                        console.log("client stack does not exist??")
                         stacks.value.push(remoteStack)
                         localStorage.setItem('stack_' + remoteStack.id, JSON.stringify(remoteStack))
                     }

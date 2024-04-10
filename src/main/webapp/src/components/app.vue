@@ -106,7 +106,7 @@
                 </li>
               </ul>
             </form>
-            <f7-button v-if="!is_offline" fill @click="openCardCreatePopUp" style="margin-bottom: 10px;">Create new card</f7-button>
+            <f7-button v-if="!is_offline.value" fill @click="openCardCreatePopUp" style="margin-bottom: 10px;">Create new card</f7-button>
             <f7-button @click="editStack" fill>Save edits</f7-button>
             <div class="card" v-for="(card, index) in cards.value" :key="card.id">
               <div class="card-header">Card: {{ card.id }}</div>
