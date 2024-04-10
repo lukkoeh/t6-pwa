@@ -2,6 +2,9 @@ import {is_offline, stacks} from "@/js/state";
 import {f7} from "framework7-vue";
 import {fetchStacks} from "@/js/api-client";
 
+/*
+ * Author: Timm Dörr
+ * */
 export function cookieExists ( name ) {
     const cookieArray = document.cookie.split(';');
 
@@ -14,10 +17,17 @@ export function cookieExists ( name ) {
 
     return false;
 }
+
+/*
+ * Author: Erich Krieg
+ * */
 export function deleteCookie(name) {
     document.cookie = name+'=; Max-Age=-99999999;';
 }
 
+/*
+ * Author: Lukas Köhler
+ * */
 export async function updateOfflineStatus() {
     try {
         const online_check = await fetch("/api/online");
@@ -31,6 +41,10 @@ export async function updateOfflineStatus() {
         await loadStacks();
     }
 }
+
+/*
+ * Author: Lukas Köhler
+ * */
 async function pushClientStack(stack) {
     const response = await fetch("api/stack/", {
         method: 'PUT',
@@ -40,6 +54,10 @@ async function pushClientStack(stack) {
         body: JSON.stringify(stack)
     })
 }
+
+/*
+ * Author: Lukas Köhler
+ * */
 export async function loadStacks() {
     stacks.value = []
     if (is_offline.value) {

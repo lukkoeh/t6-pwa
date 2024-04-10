@@ -1,4 +1,6 @@
 <template>
+  <!-- Author: Lukas Köhler -->
+  <!-- Basic structure of the app and component markup -->
   <f7-page name="home">
     <!-- Top Navbar -->
     <f7-navbar large :sliding="false">
@@ -29,7 +31,8 @@
           Cards</p>
         <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
           <f7-button fill class="button" @click.stop="openEditPopup(index)">Edit</f7-button>
-          <f7-button v-if="!is_offline" fill class="color-red" @click.stop="confirmStackDeletion(index)">Delete</f7-button>
+          <f7-button v-if="!is_offline" fill class="color-red" @click.stop="confirmStackDeletion(index)">Delete
+          </f7-button>
         </div>
       </div>
     </div>
@@ -88,14 +91,20 @@ const current_card_answer = ref("")
 
 const current_card_state = ref(true);
 
+/*
+ * Author: Maurice Trunk
+ * */
 onMounted(async () => {
   f7ready(async () => {
     await updateOfflineStatus()
   })
 })
 
+/*
+ * Author: Erich Krieg
+ * */
 async function cancelLearnSession() {
-  if(is_offline.value){
+  if (is_offline.value) {
     stacks.value[current_stack_index.value].flashcards = cards.value;
     localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
   } else {
@@ -115,8 +124,9 @@ async function cancelLearnSession() {
   f7.popup.close();
 }
 
-
-
+/*
+ * Author: Maurice Trunk
+ * */
 async function confirmStackDeletion(index: number) {
   f7.dialog.confirm("Do you want to delete this resource?", async () => {
     const res = await fetch(`api/stack/${stacks.value[index].id}`, {
@@ -136,121 +146,143 @@ async function confirmStackDeletion(index: number) {
   })
 }
 
-  async function openEditPopup(index: number) {
-    current_stack_index.value = index;
-    editStackName.value = stacks.value[index].name;
-    editStackDescription.value = stacks.value[index].description
-    f7.popup.create({
-      el: "#edit-popup",
-    }).open();
-    await loadCards(index)
+/*
+ * Author: Maurice Trunk
+ * */
+async function openEditPopup(index: number) {
+  current_stack_index.value = index;
+  editStackName.value = stacks.value[index].name;
+  editStackDescription.value = stacks.value[index].description
+  f7.popup.create({
+    el: "#edit-popup",
+  }).open();
+  await loadCards(index)
+}
+
+/*
+ * Author: Lukas Köhler
+ * */
+async function learnStack(index: number) {
+  await loadCards(index);
+  current_card_index.value = getNextCardIndex()
+
+  current_card_id.value = cards.value[current_card_index.value].id;
+
+  current_card_question.value = cards.value[current_card_index.value].front
+  current_card_answer.value = cards.value[current_card_index.value].back
+  current_stack_id.value = stacks.value[index].id;
+  f7.popup.create({
+    el: "#learn-popup",
+  }).open();
+}
+
+/*
+ * Author: Timm Dörr
+ * */
+function getNextCardIndex() {
+  let isFinished = true;
+
+  for (let card of cards.value) {
+    if (card.probability > 0) {
+      isFinished = false;
+    }
   }
 
-  async function learnStack(index: number) {
-    await loadCards(index);
-    current_card_index.value = getNextCardIndex()
-
-    current_card_id.value = cards.value[current_card_index.value].id;
-
-    current_card_question.value = cards.value[current_card_index.value].front
-    current_card_answer.value = cards.value[current_card_index.value].back
-    current_stack_id.value = stacks.value[index].id;
-    f7.popup.create({
-      el: "#learn-popup",
-    }).open();
+  if (isFinished) {
+    return -1;
   }
-
-  function getNextCardIndex() {
-    let isFinished = true;
-
-    for (let card of cards.value) {
-      if (card.probability > 0) {
-        isFinished = false;
+  let viableCards = []
+  while (viableCards.length === 0) {
+    const seed = Math.random()
+    cards.value.forEach(c => {
+      if (seed <= c.probability && seed > 0) {
+        viableCards.push(c)
       }
-    }
+    })
+  }
+  const retCard = viableCards[Math.floor(Math.random() * (viableCards.length))]
 
-    if (isFinished) {
-      return -1;
+  for (let i = 0; i < cards.value.length; i++) {
+    if (cards.value[i].id == retCard.id) {
+      return i
     }
-    let viableCards = []
-    while (viableCards.length === 0) {
-      const seed = Math.random()
-      cards.value.forEach(c => {
-        if (seed <= c.probability && seed > 0) {
-          viableCards.push(c)
-        }
-      })
-    }
-    const retCard  = viableCards[Math.floor(Math.random() * (viableCards.length))]
-
-    for (let i = 0; i < cards.value.length; i++) {
-      if (cards.value[i].id == retCard.id) {
-        return i
-      }
-    }
-
-    return -1
   }
 
-  async function loadCards(stackIndex: number) {
-      cards.value = stacks.value[stackIndex].flashcards
-  }
+  return -1
+}
 
-  async function incrementCard(known: boolean) {
-    if (known) {
-      decProb()
+/*
+ * Author: Timm Dörr
+ * */
+async function loadCards(stackIndex: number) {
+  cards.value = stacks.value[stackIndex].flashcards
+}
+
+/*
+ * Author: Timm Dörr
+ * */
+async function incrementCard(known: boolean) {
+  if (known) {
+    decProb()
+  } else {
+    incProb()
+  }
+  current_card_index.value = getNextCardIndex()
+
+  if (current_card_index.value < 0) {
+    cards.value.forEach(c => {
+      c.probability = 0.1;
+    })
+    f7.dialog.alert("You have finished the stack!")
+    if (is_offline.value) {
+      stacks.value[current_stack_index.value].flashcards = cards.value
+      localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
     } else {
-      incProb()
-    }
-    current_card_index.value = getNextCardIndex()
-
-    if (current_card_index.value < 0) {
-      cards.value.forEach(c => {
-        c.probability = 0.1;
-      })
-      f7.dialog.alert("You have finished the stack!")
-      if (is_offline.value) {
-        stacks.value[current_stack_index.value].flashcards = cards.value
-        localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
-      } else {
-        const response = await fetch("/api/stack/", {
-          method: 'PUT',
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            id: stacks.value[current_stack_index.value].id,
-            name: stacks.value[current_stack_index.value].name,
-            flashcards: cards.value,
-          })
+      const response = await fetch("/api/stack/", {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id: stacks.value[current_stack_index.value].id,
+          name: stacks.value[current_stack_index.value].name,
+          flashcards: cards.value,
         })
-      }
-      f7.dialog.alert("Progress was reset!")
-      f7.popup.close();
-      return;
+      })
     }
-
-    current_card_question.value = cards.value[current_card_index.value].front
-    current_card_answer.value = cards.value[current_card_index.value].back
-
+    f7.dialog.alert("Progress was reset!")
+    f7.popup.close();
+    return;
   }
 
-  function incProb() {
-    if(cards.value[current_card_index.value].probability < 1) {
-      cards.value[current_card_index.value].probability =
-        Math.round((cards.value[current_card_index.value].probability + 0.05)*100)/100
-    }
-    if(cards.value[current_card_index.value].probability > 1) {
-      cards.value[current_card_index.value].probability = 1
-    }
-  }
-function decProb() {
-  if(cards.value[current_card_index.value].probability > 0) {
+  current_card_question.value = cards.value[current_card_index.value].front
+  current_card_answer.value = cards.value[current_card_index.value].back
+
+}
+
+/*
+ * Author: Timm Dörr
+ * */
+function incProb() {
+  if (cards.value[current_card_index.value].probability < 1) {
     cards.value[current_card_index.value].probability =
-      Math.round((cards.value[current_card_index.value].probability - 0.05)*100)/100
+        Math.round((cards.value[current_card_index.value].probability + 0.05) * 100) / 100
+  }
+  if (cards.value[current_card_index.value].probability > 1) {
+    cards.value[current_card_index.value].probability = 1
+  }
+}
+
+/*
+ * Author: Timm Dörr
+ * */
+function decProb() {
+  if (cards.value[current_card_index.value].probability > 0) {
+    cards.value[current_card_index.value].probability =
+        Math.round((cards.value[current_card_index.value].probability - 0.05) * 100) / 100
   }
 
-  if(cards.value[current_card_index.value].probability < 0.05) {
+  if (cards.value[current_card_index.value].probability < 0.05) {
     cards.value[current_card_index.value].probability = 0
   }
 }

@@ -1,7 +1,8 @@
 <template>
   <f7-app v-bind="f7params">
 
-    <!-- Left panel with cover effect-->
+    <!-- Author: Lukas Köhler -->
+    <!-- Basic structure of the app and component markup, CSS etc. -->
     <f7-panel left cover auto>
       <f7-view>
         <f7-page>
@@ -375,6 +376,9 @@ export default {
     },
   },
   methods: {
+    /*
+    * Author: Marisa Kurewitz
+    * */
     async performRegistration() {
         if (this.createPassword !== this.createPasswordRepeat) {
         f7.dialog.alert("Passwords do not match.")
@@ -401,10 +405,16 @@ export default {
       f7.popup.close("#register-popup");
       f7.loginScreen.open("#my-login-screen");
     },
+    /*
+    * Author: Marisa Kurewitz
+    * */
     async openRegistrationPopUp() {
       f7.loginScreen.close();
       f7.popup.open("#register-popup");
     },
+    /*
+    * Author: Maurice Trunk
+    * */
     async createStack() {
       if (is_offline.value) {
         const stackToSave = {
@@ -447,6 +457,9 @@ export default {
 
       f7.popup.close();
     },
+    /*
+    * Author: Maurice Trunk
+    * */
     async editStack() {
       if(is_offline.value) {
         stacks.value[current_stack_index.value].last_update = new Date();
@@ -476,6 +489,9 @@ export default {
         }
       }
       },
+    /*
+    * Author: Erich Krieg
+    * */
     async editCard() {
       const timestamp = new Date()
       const card = {
@@ -508,6 +524,9 @@ export default {
       }
       f7.popup.close("#edit-card-popup")
     },
+    /*
+    * Author: Marisa Kurewitz
+    * */
     async createCard() {
       const card = {
         front: this.createCardFront,
@@ -534,6 +553,9 @@ export default {
       this.editCardBack = cards.value[index].back
       f7.popup.open("#edit-card-popup");
     },
+    /*
+    * Author: Marisa Kurewitz
+    * */
     deleteCard(index) {
       f7.dialog.confirm("Do you want to delete this card?", async () => {
         const response = await fetch('/api/card/'+stacks.value[current_stack_index.value].id, {
@@ -549,13 +571,22 @@ export default {
         }
       })
     },
+    /*
+    * Author: Maurice Trunk
+    * */
     async openCardCreatePopUp() {
       f7.popup.open("#create-card-popup");
     },
+    /*
+    * Author: Erich Krieg
+    * */
     logout() {
       deleteCookie('quarkus-credential')
       window.location.reload();
     },
+    /*
+    * Author: Erich Krieg
+    * */
     async openProfilePopup() {
       const response = await fetch('/api/user')
       if (response.ok) {
@@ -565,6 +596,9 @@ export default {
       }
       f7.popup.open('#profile-popup');
     },
+    /*
+    * Author: Erich Krieg
+    * */
     async saveEditedProfile() {
       const response = await fetch("/api/user", {
         method: 'PUT',
@@ -587,6 +621,9 @@ export default {
         f7.dialog.alert("There was an error while updating your profile.")
       }
     },
+    /*
+    * Author: Marisa Kurewitz
+    * */
     async performLogin() {
       const searchParams = [["login_username", this.username], ["login_password", this.password]];
       const urlFormData = new URLSearchParams(searchParams);
