@@ -29,7 +29,7 @@
           Cards</p>
         <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 50%; gap: 10px;">
           <f7-button fill class="button" @click.stop="openEditPopup(index)">Edit</f7-button>
-          <f7-button fill class="color-red" @click.stop="confirmStackDeletion(index)">Delete</f7-button>
+          <f7-button v-if="!is_offline" fill class="color-red" @click.stop="confirmStackDeletion(index)">Delete</f7-button>
         </div>
       </div>
     </div>

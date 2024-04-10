@@ -106,7 +106,8 @@
                 </li>
               </ul>
             </form>
-            <f7-button fill @click="openCardCreatePopUp">Create new card</f7-button>
+            <f7-button fill @click="openCardCreatePopUp" style="margin-bottom: 10px;">Create new card</f7-button>
+            <f7-button @click="editStack" fill>Save edits</f7-button>
             <div class="card" v-for="(card, index) in cards.value" :key="card.id">
               <div class="card-header">Card: {{ card.id }}</div>
               <div class="card-content card-content-padding">
@@ -116,11 +117,10 @@
               <div class="card-footer">
                 <div class="display-flex justify-content-flex-end flex-direction-row" style="width: 100%; gap: 10px;">
                   <f7-button fill class="button" @click.stop="openCardEditPopUp(index)">Edit</f7-button>
-                  <f7-button fill class="color-red" @click.stop="deleteCard(index)">Delete</f7-button>
+                  <f7-button v-if="!is_offline" fill class="color-red" @click.stop="deleteCard(index)">Delete</f7-button>
                 </div>
               </div>
             </div>
-            <f7-button @click="editStack" fill>Save edits</f7-button>
           </f7-block>
         </f7-page>
       </f7-view>
@@ -358,6 +358,9 @@ import {deleteCookie, loadStacks} from "@/js/utils";
 
 export default {
   computed: {
+    is_offline() {
+      return is_offline
+    },
     cards() {
       return cards
     },
@@ -466,8 +469,6 @@ export default {
       }
       },
     async editCard() {
-      if (is_offline.value) {
-      } else {
       const timestamp = new Date()
       const card = {
         id: cards.value[this.editCardIndex].id,
@@ -475,25 +476,30 @@ export default {
         back: this.editCardBack,
         last_update: timestamp
       }
-      const response = await fetch('/api/card/'+stacks.value[current_stack_index.value].id, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(card)
-      })
-      if (response.ok) {
-        const editedCard  = await response.json()
-
-        cards.value[this.editCardIndex] = editedCard
-        console.log(editedCard)
-        stacks.value[current_stack_index.value].last_update = timestamp
-        stacks.value[current_stack_index.value].flashcards[this.editCardIndex] = editedCard
-
+      if (is_offline.value) {
+        stacks.value[current_stack_index.value].flashcards[this.editCardIndex] = card
+        stacks.value[current_stack_index.value].last_update = timestamp.toISOString()
         localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
-        f7.popup.close("#edit-card-popup")
+      } else {
+        const response = await fetch('/api/card/' + stacks.value[current_stack_index.value].id, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(card)
+        })
+        if (response.ok) {
+          const editedCard = await response.json()
+
+          cards.value[this.editCardIndex] = editedCard
+          console.log(editedCard)
+          stacks.value[current_stack_index.value].last_update = timestamp
+          stacks.value[current_stack_index.value].flashcards[this.editCardIndex] = editedCard
+
+          localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
+        }
       }
-      }
+      f7.popup.close("#edit-card-popup")
     },
     async createCard() {
       const card = {
