@@ -13,6 +13,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.hibernate.reactive.mutiny.Mutiny;
 
+import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 
 @Path("/api/stack")
@@ -80,6 +83,7 @@ public class StackResource {
                                                       cardStack.card_count = cardStack.flashcards.size();
                                                   }
                                                   cardStack.name = stack.name;
+                                                  cardStack.last_update = new Timestamp(Clock.systemUTC().millis());
                                                   return s.merge(cardStack).replaceWith(Response.ok()::build);
                                               }).onItem().ifNull().continueWith(Response.status(400).build())));
     }
@@ -96,6 +100,7 @@ public class StackResource {
                                                   if(cardStack.getFlashcards() != null) {
                                                       cardStack.card_count = cardStack.flashcards.size();
                                                   }
+                                                  cardStack.last_update = new Timestamp(Clock.systemUTC().millis());
                                                   return s.merge(cardStack).replaceWith(
                                                           Response.ok().build());
                                               })).onItem().ifNull().continueWith(Response.status(400).build()));

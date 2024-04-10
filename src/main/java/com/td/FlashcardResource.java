@@ -16,6 +16,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.hibernate.reactive.mutiny.Mutiny;
 
+import java.sql.Timestamp;
+import java.time.Clock;
+
 @Path("/api/card")
 @ApplicationScoped
 @RolesAllowed("user")
@@ -124,6 +127,7 @@ public class FlashcardResource {
                     .transformToUni(fc -> sf.withTransaction(sCard -> {
                         fc.front       = card.front;
                         fc.back        = card.back;
+                        fc.last_update = new Timestamp(Clock.systemUTC().millis());
                         fc.probability = 0.1f;
                         return sCard.persist(fc).replaceWith(Response.ok()::build);
                     })).replaceWith(Response.ok(card).build()).onItem().ifNull().failWith(new WebApplicationException(400));

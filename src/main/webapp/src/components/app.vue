@@ -348,7 +348,7 @@ import {
   current_stack_index,
   createStackDescription,
   editStackDescription,
-  cards
+  cards, is_offline
 } from "../js/state.js"
 
 
@@ -436,28 +436,44 @@ export default {
       f7.popup.close();
     },
     async editStack() {
-      const response = await fetch("/api/stack", {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          id: stacks.value[current_stack_index.value].id,
-          name: editStackName.value,
-          description: editStackDescription.value
-        })
-      })
-      if (response.ok) {
+      if(is_offline.value) {
+        stacks.value[current_stack_index.value].last_update = new Date();
         stacks.value[current_stack_index.value].name = editStackName.value
         stacks.value[current_stack_index.value].description = editStackDescription.value
-        f7.popup.close("#edit-popup");
+
+        console.log(new Date().toISOString())
+        localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
+        f7.popup.close()
+      } else {
+        const response = await fetch("/api/stack", {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: stacks.value[current_stack_index.value].id,
+            name: editStackName.value,
+            description: editStackDescription.value
+          })
+        })
+        if (response.ok) {
+          stacks.value[current_stack_index.value].last_update = new Date();
+          stacks.value[current_stack_index.value].name = editStackName.value
+          stacks.value[current_stack_index.value].description = editStackDescription.value
+          localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
+          f7.popup.close("#edit-popup");
+        }
       }
       },
     async editCard() {
+      if (is_offline.value) {
+      } else {
+      const timestamp = new Date()
       const card = {
         id: cards.value[this.editCardIndex].id,
         front: this.editCardFront,
-        back: this.editCardBack
+        back: this.editCardBack,
+        last_update: timestamp
       }
       const response = await fetch('/api/card/'+stacks.value[current_stack_index.value].id, {
         method: 'PUT',
@@ -467,10 +483,17 @@ export default {
         body: JSON.stringify(card)
       })
       if (response.ok) {
-        cards.value[this.editCardIndex] = await response.json()
+        const editedCard  = await response.json()
+
+        cards.value[this.editCardIndex] = editedCard
+        console.log(editedCard)
+        stacks.value[current_stack_index.value].last_update = timestamp
+        stacks.value[current_stack_index.value].flashcards[this.editCardIndex] = editedCard
+
+        localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
         f7.popup.close("#edit-card-popup")
       }
-
+      }
     },
     async createCard() {
       const card = {
