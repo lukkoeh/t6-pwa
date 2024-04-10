@@ -106,7 +106,7 @@
                 </li>
               </ul>
             </form>
-            <f7-button fill @click="openCardCreatePopUp" style="margin-bottom: 10px;">Create new card</f7-button>
+            <f7-button v-if="!is_offline" fill @click="openCardCreatePopUp" style="margin-bottom: 10px;">Create new card</f7-button>
             <f7-button @click="editStack" fill>Save edits</f7-button>
             <div class="card" v-for="(card, index) in cards.value" :key="card.id">
               <div class="card-header">Card: {{ card.id }}</div>
@@ -339,7 +339,7 @@
   </f7-app>
 </template>
 <script>
-import {ref, onMounted, provide} from 'vue';
+import {ref} from 'vue';
 import {f7} from 'framework7-vue';
 import {fetchStacks} from "@/js/api-client";
 import {
@@ -406,35 +406,44 @@ export default {
       f7.popup.open("#register-popup");
     },
     async createStack() {
-      const res = await fetch('api/stack', {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
+      if (is_offline.value) {
+        const stackToSave = {
           name: this.createStackName,
-          description: this.createStackDescription.value,
-        })
-      }).then(async (r) => {
-        if (r.ok) {
-          const response = await fetchStacks()
-          if (response.status === 401) {
-            f7.loginScreen.open("my-login-screen")
-          } else {
-            response.json().then(data => {
-              if (data.length > 0) {
-                stacks.value = data;
-                this.createStackName = ""
-                this.createStackDescription.value = ""
-              }
-            })
-          }
-        } else {
-          //f7.loginScreen.open("my-login-screen")
-
-          alert("sth went wrong")
+          description: this.createStackDescription,
+          flashcards: []
         }
-      })
+        stacks.value.push(stackToSave)
+      } else {
+        const res = await fetch('api/stack', {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: this.createStackName,
+            description: this.createStackDescription.value,
+          })
+        }).then(async (r) => {
+          if (r.ok) {
+            const response = await fetchStacks()
+            if (response.status === 401) {
+              f7.loginScreen.open("my-login-screen")
+            } else {
+              response.json().then(data => {
+                if (data.length > 0) {
+                  stacks.value = data;
+                  this.createStackName = ""
+                  this.createStackDescription.value = ""
+                }
+              })
+            }
+          } else {
+            //f7.loginScreen.open("my-login-screen")
+
+            alert("sth went wrong")
+          }
+        })
+      }
 
       f7.popup.close();
     },
@@ -444,7 +453,6 @@ export default {
         stacks.value[current_stack_index.value].name = editStackName.value
         stacks.value[current_stack_index.value].description = editStackDescription.value
 
-        console.log(new Date().toISOString())
         localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
         f7.popup.close()
       } else {
@@ -492,7 +500,6 @@ export default {
           const editedCard = await response.json()
 
           cards.value[this.editCardIndex] = editedCard
-          console.log(editedCard)
           stacks.value[current_stack_index.value].last_update = timestamp
           stacks.value[current_stack_index.value].flashcards[this.editCardIndex] = editedCard
 
@@ -583,8 +590,6 @@ export default {
     async performLogin() {
       const searchParams = [["login_username", this.username], ["login_password", this.password]];
       const urlFormData = new URLSearchParams(searchParams);
-      console.log(urlFormData);
-      const router = f7.views.main.router;
 
         const res = await fetch('/auth', {
           method: 'POST',

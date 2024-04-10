@@ -84,6 +84,7 @@ export async function loadStacks() {
                     }
                 }
             })
+
         }
     }
     stacks.value.sort((a,b) => {

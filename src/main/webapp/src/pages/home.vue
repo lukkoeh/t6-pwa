@@ -3,7 +3,7 @@
     <!-- Top Navbar -->
     <f7-navbar large :sliding="false">
       <f7-nav-left>
-        <f7-link icon-ios="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
+        <f7-link v-if="!is_offline" icon-ios="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
       </f7-nav-left>
       <f7-nav-title sliding>Smart-Flashcards</f7-nav-title>
       <f7-nav-title-large>Smart-Flashcards</f7-nav-title-large>
@@ -16,7 +16,7 @@
         <p>The app is offline, progress is only saved <b>on device</b></p>
         <f7-button fill class="color-red" @click="updateOfflineStatus">Recheck connection</f7-button>
       </div>
-      <f7-button fill class="popup-open" data-popup=".create-popup">Create new stack</f7-button>
+      <f7-button v-if="!is_offline" fill class="popup-open" data-popup=".create-popup">Create new stack</f7-button>
     </f7-block>
     <f7-block-title>Your Stacks</f7-block-title>
     <div class="card" v-for="(stack, index) in stacks" :key="stack.id" @click="learnStack(index)">
@@ -66,6 +66,7 @@ import {computed, onMounted, inject, ref, nextTick} from "vue";
 import {cookieExists, updateOfflineStatus, loadStacks} from "../js/utils.js"
 import {fetchStacks} from "../js/api-client"
 import {is_offline} from "../js/state"
+
 import {
   stacks,
   cards,
@@ -94,20 +95,23 @@ onMounted(async () => {
 })
 
 async function cancelLearnSession() {
-  const response = await fetch("api/stack/", {
-    method: 'PUT',
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      id: stacks.value[current_stack_index.value].id,
-      name: stacks.value[current_stack_index.value].name,
-      flashcards: cards.value,
+  if(is_offline.value){
+    stacks.value[current_stack_index.value].flashcards = cards.value;
+    localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
+  } else {
+    const response = await fetch("api/stack/", {
+      method: 'PUT',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: stacks.value[current_stack_index.value].id,
+        name: stacks.value[current_stack_index.value].name,
+        flashcards: cards.value,
+      })
     })
-  })
-  if (response.ok) {
-    f7.dialog.alert("Progress was saved!")
   }
+  f7.dialog.alert("Progress was saved!")
   f7.popup.close();
 }
 
@@ -205,21 +209,23 @@ async function confirmStackDeletion(index: number) {
         c.probability = 0.1;
       })
       f7.dialog.alert("You have finished the stack!")
-      const response = await fetch("/api/stack/", {
-        method: 'PUT',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          id: stacks.value[current_stack_index.value].id,
-          name: stacks.value[current_stack_index.value].name,
-          flashcards: cards.value,
+      if (is_offline.value) {
+        stacks.value[current_stack_index.value].flashcards = cards.value
+        localStorage.setItem(`stack_${stacks.value[current_stack_index.value].id}`, JSON.stringify(stacks.value[current_stack_index.value]))
+      } else {
+        const response = await fetch("/api/stack/", {
+          method: 'PUT',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            id: stacks.value[current_stack_index.value].id,
+            name: stacks.value[current_stack_index.value].name,
+            flashcards: cards.value,
+          })
         })
-      })
-      if (response.ok) {
-        f7.dialog.alert("Progress was reset!")
       }
-
+      f7.dialog.alert("Progress was reset!")
       f7.popup.close();
       return;
     }
