@@ -16,6 +16,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.hibernate.reactive.mutiny.Mutiny;
 
+import java.sql.Timestamp;
+import java.time.Clock;
+
 @Path("/api/card")
 @ApplicationScoped
 @RolesAllowed("user")
@@ -65,6 +68,11 @@ public class FlashcardResource {
                                     card.probability = 0.1f;
                                     card.stack       = stack;
                                     return tCard.persist(card);
+                                }).onItem().transformToUni(i ->{
+                                    return sf.withTransaction(tStack -> {
+                                       stack.card_count++;
+                                       return tStack.persist(stack);
+                                    });
                                 }).replaceWith(Response.status(201).entity(card).build())));
                     }));
         });
@@ -89,7 +97,13 @@ public class FlashcardResource {
 
             cquery.where(builder.and(pCard, pUser, pStack));
             return s.createQuery(cquery).getSingleResultOrNull().onItem()
-                    .transformToUni(s::remove)
+                    .transformToUni(c -> {
+                        CardStack stack = c.stack;
+                        stack.card_count--;
+
+                        return s.remove(c).onItem().transformToUni(t -> sf.withTransaction(tStack ->
+                        tStack.persist(stack)));
+                    })
                     .replaceWith(Response.ok().build()).onItem().ifNull().failWith(new WebApplicationException(400));
         });
     }
@@ -113,9 +127,10 @@ public class FlashcardResource {
                     .transformToUni(fc -> sf.withTransaction(sCard -> {
                         fc.front       = card.front;
                         fc.back        = card.back;
+                        fc.last_update = new Timestamp(Clock.systemUTC().millis());
                         fc.probability = 0.1f;
                         return sCard.persist(fc).replaceWith(Response.ok()::build);
-                    })).replaceWith(Response.ok().build()).onItem().ifNull().failWith(new WebApplicationException(400));
+                    })).replaceWith(Response.ok(card).build()).onItem().ifNull().failWith(new WebApplicationException(400));
         });
 
     }

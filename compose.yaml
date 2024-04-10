@@ -19,7 +19,7 @@ services:
       QUARKUS_HIBERNATE_ORM_LOG_SQL: false
     networks:
       - sf-network
-      
+
   db:
     build:
       context: .
@@ -34,11 +34,22 @@ services:
     networks:
       - sf-network
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect"]
+      test: [ "CMD", "healthcheck.sh", "--connect" ]
       timeout: 4s
       retries: 10
-      
-      
+
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+
+
 networks:
   sf-network:
     name: sfnetwork

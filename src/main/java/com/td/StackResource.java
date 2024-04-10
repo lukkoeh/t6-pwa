@@ -13,6 +13,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.hibernate.reactive.mutiny.Mutiny;
 
+import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 
 @Path("/api/stack")
@@ -27,6 +30,8 @@ public class StackResource {
     public Uni<Response> newStack( CardStack cardStack, @Context SecurityContext securityContext ) {
         return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(u -> {
             cardStack.user = u;
+            cardStack.card_count = 0;
+
             return sf.withSession(s -> s.createQuery(Filter.findByUserAndName(CardStack.class, sf, u, cardStack.name))
                                         .getSingleResultOrNull().onItem().ifNotNull()
                                         .transform(st -> Response.status(400).build()).onItem().ifNull().switchTo(
@@ -72,27 +77,33 @@ public class StackResource {
                                               .transformToUni(cardStack -> {
                                                   stack.flashcards.forEach(crd -> crd.stack = stack);
                                                   cardStack.flashcards = stack.flashcards;
+                                                  cardStack.card_count = 0;
+                                                  cardStack.description = stack.description;
+                                                  if(cardStack.flashcards != null) {
+                                                      cardStack.card_count = cardStack.flashcards.size();
+                                                  }
                                                   cardStack.name = stack.name;
+                                                  cardStack.last_update = new Timestamp(Clock.systemUTC().millis());
                                                   return s.merge(cardStack).replaceWith(Response.ok()::build);
                                               }).onItem().ifNull().continueWith(Response.status(400).build())));
     }
 
     @PATCH
-    public Uni<Response> updateStackName( @Context SecurityContext securityContext, CardStack stack ) {
+    public Uni<Response> updateStackNameAndDesc( @Context SecurityContext securityContext, CardStack stack ) {
         return User.findByName(securityContext.getUserPrincipal().getName()).onItem().transformToUni(
                 u -> sf.withTransaction(s -> s.createQuery(Filter.findByUserAndId(CardStack.class, sf, u, stack.id))
                                               .getSingleResultOrNull().onItem().ifNotNull()
                                               .transformToUni(cardStack -> {
-                                                  return s.createQuery(
-                                                                  Filter.findByUserAndName(CardStack.class, sf, u, stack.name))
-                                                          .getSingleResultOrNull().onItem().ifNotNull()
-                                                          .transform(existingStack -> Response.status(400).build())
-                                                          .onItem().ifNull().switchTo(() -> {
-                                                              cardStack.name = stack.name;
-                                                              return s.merge(cardStack).replaceWith(
-                                                                  Response.ok().build());
-                                                          });
-                                              }).onItem().ifNull().continueWith(Response.status(400).build())));
+                                                  cardStack.name = stack.name;
+                                                  cardStack.description = stack.description;
+                                                  cardStack.card_count = 0;
+                                                  if(cardStack.getFlashcards() != null) {
+                                                      cardStack.card_count = cardStack.flashcards.size();
+                                                  }
+                                                  cardStack.last_update = new Timestamp(Clock.systemUTC().millis());
+                                                  return s.merge(cardStack).replaceWith(
+                                                          Response.ok().build());
+                                              })).onItem().ifNull().continueWith(Response.status(400).build()));
     }
 
 }

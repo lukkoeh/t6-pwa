@@ -5,3 +5,11 @@ export async function fetchStacks() {
         }
     })
 }
+
+export async function fetchCards(stackId) {
+    return await fetch('api/card/' + stackId, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+}
