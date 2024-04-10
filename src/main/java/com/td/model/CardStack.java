@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.td.auth.User;
 import jakarta.persistence.*;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
@@ -41,6 +42,9 @@ public class CardStack {
 
     @OneToMany(mappedBy = "stack", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.MERGE })
     public List<Flashcard> flashcards;
+
+    @Column(name = "last_update", nullable = false, updatable = true, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    public Timestamp last_update;
 
     public List<Flashcard> getFlashcards() {
         return flashcards;

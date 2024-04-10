@@ -354,7 +354,7 @@ import {
 
 import routes from '../js/routes.js';
 import store from '../js/store';
-import {deleteCookie} from "@/js/utils";
+import {deleteCookie, loadStacks} from "@/js/utils";
 
 export default {
   computed: {
@@ -566,16 +566,12 @@ export default {
         f7.loginScreen.open("#my-login-screen");
       } else {
         f7.loginScreen.close();
-        const response = await fetchStacks();
-        if (response.ok) {
-          stacks.value = await response.json();
-        }
+        await loadStacks()
       }
 
     }
   },
   setup() {
-
     // Framework7 Parameters
     const f7params = {
       name: 'Smart-Flashcards', // App name
@@ -589,7 +585,7 @@ export default {
 
       // Register service worker (only on production build)
       serviceWorker: process.env.NODE_ENV === 'production' ? {
-        path: '/service-worker.js',
+        path: '/sw.js',
       } : {},
     };
     // Login screen data

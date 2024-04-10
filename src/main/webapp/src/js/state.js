@@ -9,3 +9,5 @@ export const current_card_id = ref(1)
 export const editStackName = ref('')
 export const createStackDescription = ref('')
 export const editStackDescription = ref('')
+
+export const is_offline = ref(false)

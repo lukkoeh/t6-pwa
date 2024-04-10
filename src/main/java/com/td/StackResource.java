@@ -75,6 +75,7 @@ public class StackResource {
                                                   stack.flashcards.forEach(crd -> crd.stack = stack);
                                                   cardStack.flashcards = stack.flashcards;
                                                   cardStack.card_count = 0;
+                                                  cardStack.description = stack.description;
                                                   if(cardStack.flashcards != null) {
                                                       cardStack.card_count = cardStack.flashcards.size();
                                                   }

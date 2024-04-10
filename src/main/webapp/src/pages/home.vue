@@ -11,11 +11,15 @@
     <!-- Page content-->
     <f7-block>
       <p>Welcome to smart-flashcards. Please login to see your personal stacks of flashcards.</p>
+
+      <div v-if="is_offline" style="margin-bottom: 10px;">
+        <p>The app is offline, progress is only saved <b>on device</b></p>
+        <f7-button fill class="color-red" @click="updateOfflineStatus">Recheck connection</f7-button>
+      </div>
       <f7-button fill class="popup-open" data-popup=".create-popup">Create new stack</f7-button>
     </f7-block>
     <f7-block-title>Your Stacks</f7-block-title>
-
-    <div class="card" v-for="(stack, index) in stacks" :key="stack.id" @click="learnStack(stack.id)">
+    <div class="card" v-for="(stack, index) in stacks" :key="stack.id" @click="learnStack(index)">
       <div class="card-header">{{ stack.name }}</div>
       <div class="card-content card-content-padding">
         <p>{{ stack.description }}</p>
@@ -59,9 +63,9 @@
 <script setup lang="ts">
 import {f7, f7ready} from "framework7-vue";
 import {computed, onMounted, inject, ref, nextTick} from "vue";
-import {cookieExists} from "../js/utils.js"
+import {cookieExists, updateOfflineStatus, loadStacks} from "../js/utils.js"
 import {fetchStacks} from "../js/api-client"
-import {fetchCards} from "../js/api-client"
+import {is_offline} from "../js/state"
 import {
   stacks,
   cards,
@@ -85,12 +89,7 @@ const current_card_state = ref(true);
 
 onMounted(async () => {
   f7ready(async () => {
-    if (cookieExists("quarkus-credential")) {
-      await loadStacks();
-    } else {
-      //f7.loginScreen.open("#my-login-screen")
-      f7.loginScreen.open("#my-login-screen");
-    }
+    await updateOfflineStatus()
   })
 })
 
@@ -112,18 +111,7 @@ async function cancelLearnSession() {
   f7.popup.close();
 }
 
-async function loadStacks() {
-  const response = await fetchStacks()
-  if (response.status === 401) {
-    f7.loginScreen.open("#my-login-screen")
-  } else {
-    response.json().then(data => {
-      if (data.length > 0) {
-        stacks.value = data;
-      }
-    })
-  }
-}
+
 
 async function confirmStackDeletion(index: number) {
   f7.dialog.confirm("Do you want to delete this resource?", async () => {
@@ -151,18 +139,18 @@ async function confirmStackDeletion(index: number) {
     f7.popup.create({
       el: "#edit-popup",
     }).open();
-    await loadCards(stacks.value[index].id)
+    await loadCards(index)
   }
 
-  async function learnStack(id: number) {
-    await loadCards(id);
+  async function learnStack(index: number) {
+    await loadCards(index);
     current_card_index.value = getNextCardIndex()
 
     current_card_id.value = cards.value[current_card_index.value].id;
 
     current_card_question.value = cards.value[current_card_index.value].front
     current_card_answer.value = cards.value[current_card_index.value].back
-    current_stack_id.value = id;
+    current_stack_id.value = stacks.value[index].id;
     f7.popup.create({
       el: "#learn-popup",
     }).open();
@@ -200,13 +188,8 @@ async function confirmStackDeletion(index: number) {
     return -1
   }
 
-  async function loadCards(stackid: number) {
-    const response = await fetchCards(stackid);
-    if (response.ok) {
-      cards.value = await response.json()
-    } else {
-      f7.loginScreen.open("my-login-screen")
-    }
+  async function loadCards(stackIndex: number) {
+      cards.value = stacks.value[stackIndex].flashcards
   }
 
   async function incrementCard(known: boolean) {

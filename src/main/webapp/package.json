@@ -8,7 +8,7 @@
   "scripts": {
     "start": "npm run dev",
     "dev": "cross-env NODE_ENV=development vite",
-    "build": "cross-env NODE_ENV=production vite build && npx workbox generateSW workbox-config.js",
+    "build": "cross-env NODE_ENV=production vite build",
     "postinstall": "cpy --flat ./node_modules/framework7-icons/fonts/*.* ./src/fonts/ && cpy --flat ./node_modules/material-icons/iconfont/*.* ./src/fonts/",
     "watch": "cross-env NODE_ENV=development vite build --watch",
     "watch_prod": "cross-env NODE_ENV=production vite build --watch",
@@ -37,6 +37,9 @@
     "cross-env": "^7.0.3",
     "postcss-preset-env": "^9.5.4",
     "vite": "^5.2.8",
-    "workbox-cli": "^7.0.0"
+    "vite-plugin-pwa": "^0.19.8",
+    "workbox-cli": "^7.0.0",
+    "workbox-core": "^7.0.0",
+    "workbox-precaching": "^7.0.0"
   }
 }
