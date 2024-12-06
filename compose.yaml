@@ -21,10 +21,7 @@ services:
       - sf-network
 
   db:
-    build:
-      context: .
-      dockerfile: src/main/docker/Dockerfile.mariadb
-    image: mariadb
+    image: mariadb:latest
     restart: always
     ports:
       - "3306:3306"
