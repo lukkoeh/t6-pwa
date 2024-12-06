@@ -1,0 +1,23 @@
+FROM maven:3.9.9-eclipse-temurin-21 AS build-stage
+
+WORKDIR /app
+
+# Direkt das Maven-Projekt und Wrapper importieren
+COPY .mvn .mvn
+COPY pom.xml ./
+COPY mvnw ./mvnw
+
+RUN chmod +x ./mvnw
+
+# Quellcode kopieren und bauen
+COPY src ./src
+RUN ./mvnw package -Dquarkus.package.type=uber-jar -DskipTests
+
+# Finales Image
+FROM eclipse-temurin:21-jdk-jammy AS runtime-stage
+
+WORKDIR /app
+COPY --from=build-stage /app/target/*-runner.jar /app/app.jar
+
+EXPOSE 8080
+CMD ["java", "-jar", "/app/app.jar"]

@@ -4,7 +4,7 @@ services:
   smart-flashcards:
     build:
       context: .
-      dockerfile: src/main/docker/Dockerfile.native
+      dockerfile: Quarkus-Dockerfile
     image: tdoerr/smart-flashcards:native
     ports:
       - "8080:8080"
